@@ -18,18 +18,59 @@ def get_db(collection_name="recipes_structure"):
 
 def search(query, collection_name="recipes_structure", filter_dict=None, top_k=5):
     """
-    Search-only retrieval. Returns a list of documents.
+    Hybrid search (Dense + BM25 with RRF). Returns a list of (document, score) tuples.
     """
     db = get_db(collection_name)
-    # Chroma filter syntax: {"dietary_tags": {"$contains": "Vegan"}} or exact match
-    # Since dietary tags can be comma separated, we use $contains if supported, else exact.
-    # Actually, Chroma supports simple dict filters.
-    # Let's format the filter to match exact strings, or pass it directly.
     kwargs = {"k": top_k}
     if filter_dict:
         kwargs["filter"] = filter_dict
         
-    results = db.similarity_search_with_relevance_scores(query, **kwargs)
+    # 1. Dense Search (fetch a larger pool for RRF)
+    pool_k = max(top_k * 4, 20)
+    dense_kwargs = kwargs.copy()
+    dense_kwargs["k"] = pool_k
+    dense_results = db.similarity_search_with_relevance_scores(query, **dense_kwargs)
+    
+    # If there is a filter_dict, applying BM25 in-memory is complex without manual filtering,
+    # so we'll just fall back to dense for filtered queries (for simplicity).
+    if filter_dict:
+        return dense_results[:top_k]
+        
+    # 2. Sparse Search (BM25)
+    # Fetch all docs to create BM25 index
+    from langchain_community.retrievers import BM25Retriever
+    from langchain_core.documents import Document
+    all_data = db.get()
+    all_docs = [Document(page_content=c, metadata=m) for c, m in zip(all_data['documents'], all_data['metadatas'])]
+    bm25 = BM25Retriever.from_documents(all_docs)
+    bm25.k = pool_k
+    sparse_docs = bm25.invoke(query)
+    
+    # 3. RRF (Reciprocal Rank Fusion)
+    # RRF Score = 1 / (60 + rank)
+    fused_scores = {}
+    doc_map = {}
+    
+    # Add dense scores
+    for rank, (doc, _score) in enumerate(dense_results):
+        chunk_id = doc.metadata.get('chunk_id')
+        if chunk_id not in fused_scores:
+            fused_scores[chunk_id] = 0
+            doc_map[chunk_id] = doc
+        fused_scores[chunk_id] += 1 / (60 + rank + 1)
+        
+    # Add sparse scores
+    for rank, doc in enumerate(sparse_docs):
+        chunk_id = doc.metadata.get('chunk_id')
+        if chunk_id not in fused_scores:
+            fused_scores[chunk_id] = 0
+            doc_map[chunk_id] = doc
+        fused_scores[chunk_id] += 1 / (60 + rank + 1)
+        
+    # Sort and return top_k
+    sorted_fused = sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)
+    results = [(doc_map[chunk_id], score) for chunk_id, score in sorted_fused[:top_k]]
+    
     return results
 
 def generate(query, docs):
