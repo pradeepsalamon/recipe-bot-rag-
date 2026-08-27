@@ -73,7 +73,7 @@ def search(query, collection_name="recipes_structure", filter_dict=None, top_k=5
     
     return results
 
-def generate(query, docs):
+def generate(query, docs, return_trace=False):
     """
     Grounded generation using LLM with strict prompting.
     """
@@ -119,10 +119,17 @@ The recipe uses 20g of fine sea salt. [chunk_abc123]
     response = llm.invoke(messages)
     
     content = response.content
+    answer = str(content)
     if isinstance(content, list) and len(content) > 0:
         if isinstance(content[0], dict) and 'text' in content[0]:
-            return content[0]['text']
+            answer = content[0]['text']
     elif isinstance(content, str):
-        return content
+        answer = content
         
-    return str(content)
+    if return_trace:
+        return answer, {
+            "system_prompt": system_prompt.strip(),
+            "human_prompt": human_prompt,
+            "model_params": {"model": "gemini-3.5-flash", "temperature": 0}
+        }
+    return answer
