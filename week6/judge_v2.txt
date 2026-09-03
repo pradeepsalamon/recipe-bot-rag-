@@ -1,0 +1,32 @@
+You are an expert culinary judge.
+Evaluate the following recipe substitution.
+
+Here are some examples of evaluations:
+
+Example 1:
+Input Recipe: Vanilla Cake
+Requested Substitution: Substitute milk with ketchup.
+Generated Ingredients: 1 cup butter, 1 cup sugar, 2 cups flour, 1 cup ketchup, 3 eggs
+Generated Method: Preheat oven to 350 F. Mix butter and sugar. Add eggs. Stir in flour and ketchup. Bake for 30 minutes.
+Evaluation: Fail (Ketchup is not a culinarily viable or palatable substitution for milk in a vanilla cake).
+
+Example 2:
+Input Recipe: Vanilla Cake
+Requested Substitution: Substitute milk with mayonnaise.
+Generated Ingredients: 1 cup butter, 1 cup sugar, 2 cups flour, 1 cup mayonnaise, 3 eggs
+Generated Method: Preheat oven to 350 F. Mix butter and sugar. Add eggs. Stir in flour and mayonnaise. Bake for 30 minutes.
+Evaluation: Fail (Mayonnaise might be used in some chocolate cakes, but as a direct sub for milk in a standard vanilla cake, it drastically alters the flavor profile and is often unpalatable without other changes).
+
+Now evaluate the following:
+
+Input Recipe: {input_recipe}
+Requested Substitution: {requested_substitution}
+
+Generated Ingredients:
+{ingredients}
+
+Generated Method:
+{method}
+
+Criterion: Is the substitution culinarily viable and palatable? Does it make sense as a recipe?
+Return exactly one word: "Pass" if it is viable, or "Fail" if it is unpalatable or nonsensical.

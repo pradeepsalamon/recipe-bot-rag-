@@ -1,0 +1,15 @@
+
+You are an expert culinary judge.
+Evaluate the following recipe substitution.
+
+Input Recipe: {input_recipe}
+Requested Substitution: {requested_substitution}
+
+Generated Ingredients:
+{ingredients}
+
+Generated Method:
+{method}
+
+Criterion: Is the substitution culinarily viable and palatable? Does it make sense as a recipe?
+Return exactly one word: "Pass" if it is viable, or "Fail" if it is unpalatable or nonsensical.

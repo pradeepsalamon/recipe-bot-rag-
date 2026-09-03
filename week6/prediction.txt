@@ -1,0 +1,1 @@
+Prediction: By showing the judge two examples where absurd substitutions (like ketchup for milk) are explicitly failed, it will learn to penalize unpalatable flavor combinations and improve agreement with human labels.
