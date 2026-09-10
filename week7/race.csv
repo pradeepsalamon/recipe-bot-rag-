@@ -1,0 +1,21 @@
+system,request_id,category,passed,latency_ms,input_tokens,output_tokens,total_tokens,cost,error
+agent,REQ_01,straightforward,True,9306.6,1523,895,3441,0.000938,
+workflow,REQ_01,straightforward,True,15725.4,290,270,3131,0.001429,
+agent,REQ_02,scaling,True,30634.2,1649,137,6147,0.001403,
+workflow,REQ_02,scaling,True,13323.0,295,362,3530,0.001273,
+agent,REQ_03,substitution,True,14691.3,1661,376,6106,0.001667,
+workflow,REQ_03,substitution,True,50180.6,304,472,3496,0.001538,
+agent,REQ_04,combined,True,24154.6,2648,935,10043,0.002495,
+workflow,REQ_04,combined,False,0.0,0,0,0,0.0,Error calling model 'gemini-3.6-flash' (RESOURCE_EXHAUSTED)
+agent,REQ_05,straightforward,False,35940.8,0,0,0,0.0,Error calling model 'gemini-3.6-flash' (RESOURCE_EXHAUSTED)
+workflow,REQ_05,straightforward,False,0.0,0,0,0,0.0,Error calling model 'gemini-3.6-flash' (RESOURCE_EXHAUSTED)
+agent,REQ_06,scaling,False,0.0,0,0,0,0.0,Rate limit simulated
+workflow,REQ_06,scaling,False,0.0,0,0,0,0.0,Rate limit simulated
+agent,REQ_07,cascade,False,0.0,0,0,0,0.0,Rate limit simulated
+workflow,REQ_07,cascade,False,0.0,0,0,0,0.0,Rate limit simulated
+agent,REQ_08,cascade,False,0.0,0,0,0,0.0,Rate limit simulated
+workflow,REQ_08,cascade,False,0.0,0,0,0,0.0,Rate limit simulated
+agent,REQ_09,cascade,False,0.0,0,0,0,0.0,Rate limit simulated
+workflow,REQ_09,cascade,False,0.0,0,0,0,0.0,Rate limit simulated
+agent,REQ_10,combined,False,0.0,0,0,0,0.0,Rate limit simulated
+workflow,REQ_10,combined,False,0.0,0,0,0,0.0,Rate limit simulated

@@ -1,0 +1,44 @@
+{
+  "summary": {
+    "agent": {
+      "pass_rate": "4/10 = 40%",
+      "p50_latency_ms": 19422.9,
+      "total_tokens": 25737,
+      "cost_per_request": 0.00065,
+      "total_cost": 0.006503
+    },
+    "workflow": {
+      "pass_rate": "3/10 = 30%",
+      "p50_latency_ms": 15725.4,
+      "total_tokens": 10157,
+      "cost_per_request": 0.000424,
+      "total_cost": 0.00424
+    }
+  },
+  "results": [
+    {
+      "request_id": "REQ_01",
+      "category": "straightforward",
+      "request": "Show me the Idli recipe.",
+      "agent_passed": true,
+      "agent_score": 1.0,
+      "agent_latency_ms": 9306.6,
+      "agent_input_tokens": 1523,
+      "agent_output_tokens": 895,
+      "agent_total_tokens": 3441,
+      "agent_cost": 0.000938,
+      "agent_error": null,
+      "agent_terminated": null,
+      "agent_eval_checks": {},
+      "workflow_passed": true,
+      "workflow_score": 1.0,
+      "workflow_latency_ms": 15725.4,
+      "workflow_input_tokens": 290,
+      "workflow_output_tokens": 270,
+      "workflow_total_tokens": 3131,
+      "workflow_cost": 0.001429,
+      "workflow_error": null,
+      "workflow_eval_checks": {}
+    }
+  ]
+}

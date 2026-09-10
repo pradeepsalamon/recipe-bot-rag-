@@ -1,0 +1,135 @@
+[
+  {
+    "id": "REQ_01",
+    "category": "straightforward",
+    "request": "Show me the Idli recipe.",
+    "expected": {
+      "recipe_id": "idli",
+      "must_contain_ingredients": ["idli rice", "urad dal"],
+      "must_contain_method_keywords": ["soak", "grind", "ferment"],
+      "target_servings": null,
+      "prohibited_allergens": [],
+      "required_substitutions": []
+    }
+  },
+  {
+    "id": "REQ_02",
+    "category": "scaling",
+    "request": "I need the Rasam recipe scaled to 8 servings.",
+    "expected": {
+      "recipe_id": "rasam",
+      "must_contain_ingredients": ["toor dal", "tamarind"],
+      "must_contain_method_keywords": ["simmer"],
+      "target_servings": 8,
+      "prohibited_allergens": [],
+      "required_substitutions": []
+    }
+  },
+  {
+    "id": "REQ_03",
+    "category": "substitution",
+    "request": "Give me the Ven Pongal recipe, but I'm dairy-free. Replace any dairy ingredients.",
+    "expected": {
+      "recipe_id": "ven_pongal",
+      "must_contain_ingredients": ["rice", "moong dal"],
+      "must_contain_method_keywords": ["roast"],
+      "target_servings": null,
+      "prohibited_allergens": ["DAIRY"],
+      "required_substitutions": ["ghee"]
+    }
+  },
+  {
+    "id": "REQ_04",
+    "category": "combined",
+    "request": "Get me the Sambar recipe for 10 servings and make it gluten-free.",
+    "expected": {
+      "recipe_id": "sambar",
+      "must_contain_ingredients": ["toor dal", "vegetables"],
+      "must_contain_method_keywords": ["cook", "temper"],
+      "target_servings": 10,
+      "prohibited_allergens": ["GLUTEN"],
+      "required_substitutions": ["asafoetida"]
+    }
+  },
+  {
+    "id": "REQ_05",
+    "category": "straightforward",
+    "request": "What is the Medu Vada recipe?",
+    "expected": {
+      "recipe_id": "medu_vada",
+      "must_contain_ingredients": ["urad dal"],
+      "must_contain_method_keywords": ["soak", "fry"],
+      "target_servings": null,
+      "prohibited_allergens": [],
+      "required_substitutions": []
+    }
+  },
+  {
+    "id": "REQ_06",
+    "category": "scaling",
+    "request": "I want to make Dosa for 30 people. Scale the recipe accordingly.",
+    "expected": {
+      "recipe_id": "dosa",
+      "must_contain_ingredients": ["rice", "urad dal"],
+      "must_contain_method_keywords": ["ferment", "cook"],
+      "target_servings": 30,
+      "prohibited_allergens": [],
+      "required_substitutions": []
+    }
+  },
+  {
+    "id": "REQ_07",
+    "category": "cascade",
+    "request": "Make the Ven Pongal recipe suitable for someone with both dairy allergy and tree nut allergy.",
+    "expected": {
+      "recipe_id": "ven_pongal",
+      "must_contain_ingredients": ["rice", "moong dal"],
+      "must_contain_method_keywords": ["roast"],
+      "target_servings": null,
+      "prohibited_allergens": ["DAIRY", "TREE_NUT"],
+      "required_substitutions": ["ghee", "cashew"],
+      "cascade_note": "Ghee needs dairy-free substitute. Cashews need tree-nut-free substitute. Both must be resolved."
+    }
+  },
+  {
+    "id": "REQ_08",
+    "category": "cascade",
+    "request": "I want the Ven Pongal recipe made fully vegan and nut-free. Scale to 8 servings.",
+    "expected": {
+      "recipe_id": "ven_pongal",
+      "must_contain_ingredients": ["rice", "moong dal"],
+      "must_contain_method_keywords": ["roast"],
+      "target_servings": 8,
+      "prohibited_allergens": ["DAIRY", "TREE_NUT"],
+      "required_substitutions": ["ghee", "cashew"],
+      "cascade_note": "Vegan removes dairy (ghee->coconut oil). Nut-free removes cashews (cashew->sunflower seeds). Combined cascade with scaling."
+    }
+  },
+  {
+    "id": "REQ_09",
+    "category": "cascade",
+    "request": "Adapt the Rasam recipe to be vegan. Make sure no dairy or animal products remain. Also scale to 2 servings.",
+    "expected": {
+      "recipe_id": "rasam",
+      "must_contain_ingredients": ["toor dal", "tamarind", "tomato"],
+      "must_contain_method_keywords": ["simmer"],
+      "target_servings": 2,
+      "prohibited_allergens": ["DAIRY", "EGG"],
+      "required_substitutions": ["ghee"],
+      "cascade_note": "Rasam recipe has 'Ghee or oil' in ingredients. Vegan constraint requires checking if ghee is used and substituting. The agent must discover this from the recipe data and act on it."
+    }
+  },
+  {
+    "id": "REQ_10",
+    "category": "combined",
+    "request": "Give me the Sambar recipe scaled to 2 servings. I have a dairy allergy.",
+    "expected": {
+      "recipe_id": "sambar",
+      "must_contain_ingredients": ["toor dal", "vegetables", "tamarind"],
+      "must_contain_method_keywords": ["cook"],
+      "target_servings": 2,
+      "prohibited_allergens": ["DAIRY"],
+      "required_substitutions": []
+    }
+  }
+]
