@@ -257,6 +257,9 @@ if __name__ == "__main__":
     elif top_mode == "extra_tool":
         print("Mitigation strategy: Tighter Tool Description (Stop hallucinating tool calls)")
         mitigation_prompt = SYSTEM_PROMPT + "\n\nCRITICAL RULE: Only call tools if specifically requested. For example, if a recipe does NOT contain an allergen, do NOT call `substitute_ingredient`. If no scaling is requested, do NOT call `scale_recipe`."
+    elif top_mode == "wrong_order":
+        print("Mitigation strategy: Tighter Tool Description (Prevent duplicate tool calls)")
+        mitigation_prompt = SYSTEM_PROMPT + "\n\nCRITICAL RULE: Do NOT call the same tool multiple times consecutively unless explicitly replacing multiple distinct ingredients. If there is only one restricted ingredient (like Ghee), only call substitute_ingredient ONCE. Do not substitute the substitute."
     else:
         print("Mitigation strategy: Tighter Tool Description")
         mitigation_prompt = SYSTEM_PROMPT + "\n\nCRITICAL RULE: Follow the exact expected sequence of tools. Call search_recipe first, then scale_recipe if scaling, then substitute_ingredient for allergens."
