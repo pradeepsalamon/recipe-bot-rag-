@@ -1,0 +1,508 @@
+
+======================================================================
+AGENT — REQ_01
+======================================================================
+
+[RUN START] request_id=agent_REQ_01
+  request: Show me the Idli recipe.
+  budgets: max_iters=10, max_tokens=30000, max_cost=0.1, max_wall_clock=120
+
+[STEP 1]
+  tokens: input=981, output=42, cost=$0.000172
+  action=search_recipe
+  input={"query": "Idli"}
+
+[TOOL RESULT]
+  {
+  "found": true,
+  "recipe_id": "idli",
+  "title": "Idli",
+  "description": "Steamed rice & lentil cakes, soft and fluffy",
+  "cuisine": "South Indian (Tamil Nadu)",
+  "dietary_tags": "Vegan, Gluten-Free, Nut-Free",
+  "allergens": "None (check asafoetida-free if used)",
+  "yield": "~24 idlis",
+  "ingredients": [
+    {
+      "ingredient": "Idli rice (par-boiled)",
+      "amount": "800 g",
+      "ratio %": "100%"
+    },
+    {
+      "ingredient": "Urad dal (split black gram)",
+      "amount": "20...
+
+[STEP 2]
+  tokens: input=1523, output=1330, cost=$0.001026
+  decision=final_answer
+
+[FINAL]
+  title: Idli
+  servings: ~24 idlis
+  ingredients: 5 items
+  substitutions: []
+
+[RUN END] request_id=agent_REQ_01
+  iterations=2, tokens=3876, cost=$0.001199, latency=10218.1ms
+
+======================================================================
+WORKFLOW — REQ_01
+======================================================================
+
+[WORKFLOW START] request_id=workflow_REQ_01
+  request: Show me the Idli recipe.
+
+[STEP 1] action=parse_request
+  parsed: {"recipe_query": "Idli", "target_servings": null, "dietary_constraints": [], "allergen_constraints": []}
+  tokens: input=290, output=401, cost=$0.000284
+
+[STEP 2] action=search_recipe
+  query: Idli
+  found: True
+  recipe: Idli (idli)
+
+[STEP 3] action=generate_final_response
+
+[FINAL]
+  title: Idli
+  servings: Serves 6 (~24 idlis)
+  ingredients: 5 items
+
+[WORKFLOW END] request_id=workflow_REQ_01
+  iterations=3, tokens=3325, cost=$0.001545, latency=16451.1ms
+
+======================================================================
+AGENT — REQ_02
+======================================================================
+
+[RUN START] request_id=agent_REQ_02
+  request: I need the Rasam recipe scaled to 8 servings.
+  budgets: max_iters=10, max_tokens=30000, max_cost=0.1, max_wall_clock=120
+
+[STEP 1]
+  tokens: input=986, output=68, cost=$0.000189
+  action=search_recipe
+  input={"query": "Rasam"}
+
+[TOOL RESULT]
+  {
+  "found": true,
+  "recipe_id": "rasam",
+  "title": "Rasam",
+  "description": "Peppery, tangy tamarind-tomato soup",
+  "cuisine": "South Indian (Tamil Nadu)",
+  "dietary_tags": "Vegan, Gluten-Free",
+  "allergens": "None",
+  "yield": "4 servings",
+  "ingredients": [
+    {
+      "ingredient": "Toor dal (cooked, mashed)",
+      "amount": "50 g",
+      "ratio %": "-"
+    },
+    {
+      "ingredient": "Tamarind pulp",
+      "amount": "30 g",
+      "ratio %": "-"
+    },
+    {
+      "ingredient": "Tom...
+
+[STEP 2]
+  tokens: input=1649, output=140, cost=$0.000331
+  action=scale_recipe
+  input={"original_servings": 4, "recipe_id": "rasam", "target_servings": 8}
+
+[TOOL RESULT]
+  {
+  "recipe_id": "rasam",
+  "title": "Rasam",
+  "original_servings": 4,
+  "target_servings": 8,
+  "scale_factor": 2.0,
+  "scaled_ingredients": [
+    {
+      "ingredient": "Toor dal (cooked, mashed)",
+      "original_amount": "50 g",
+      "scaled_amount": "100 g",
+      "ratio": "-"
+    },
+    {
+      "ingredient": "Tamarind pulp",
+      "original_amount": "30 g",
+      "scaled_amount": "60 g",
+      "ratio": "-"
+    },
+    {
+      "ingredient": "Tomato (chopped)",
+      "original_amount": "100 ...
+
+[STEP 3]
+  tokens: input=2444, output=858, cost=$0.000881
+  decision=final_answer
+
+[FINAL]
+  title: Rasam (adapted)
+  servings: Serves 8
+  ingredients: 11 items
+  substitutions: []
+
+[RUN END] request_id=agent_REQ_02
+  iterations=3, tokens=6145, cost=$0.001401, latency=15571.0ms
+
+======================================================================
+WORKFLOW — REQ_02
+======================================================================
+
+[WORKFLOW START] request_id=workflow_REQ_02
+  request: I need the Rasam recipe scaled to 8 servings.
+
+[STEP 1] action=parse_request
+  parsed: {"recipe_query": "Rasam", "target_servings": 8, "dietary_constraints": [], "allergen_constraints": []}
+  tokens: input=295, output=422, cost=$0.000297
+
+[STEP 2] action=search_recipe
+  query: Rasam
+  found: True
+  recipe: Rasam (rasam)
+
+[STEP 3] action=scale_recipe
+  recipe_id: rasam, original: 4, target: 8
+  scale_factor: 2.0
+
+[STEP 4] action=generate_final_response
+
+[FINAL]
+  title: Rasam
+  servings: Serves 8
+  ingredients: 11 items
+
+[WORKFLOW END] request_id=workflow_REQ_02
+  iterations=4, tokens=3691, cost=$0.00137, latency=13274.7ms
+
+======================================================================
+AGENT — REQ_03
+======================================================================
+
+[RUN START] request_id=agent_REQ_03
+  request: Give me the Ven Pongal recipe, but I'm dairy-free. Replace any dairy ingredients.
+  budgets: max_iters=10, max_tokens=30000, max_cost=0.1, max_wall_clock=120
+
+[STEP 1]
+  tokens: input=995, output=87, cost=$0.000201
+  action=search_recipe
+  input={"query": "Ven Pongal"}
+
+[TOOL RESULT]
+  {
+  "found": true,
+  "recipe_id": "ven_pongal",
+  "title": "Ven Pongal",
+  "description": "Comforting savory rice and moong dal porridge",
+  "cuisine": "South Indian (Tamil Nadu)",
+  "dietary_tags": "Vegetarian, Gluten-Free",
+  "allergens": "Dairy (ghee), Tree Nuts (cashew)",
+  "yield": "4 servings",
+  "ingredients": [
+    {
+      "ingredient": "Raw rice",
+      "amount": "200 g",
+      "ratio %": "-"
+    },
+    {
+      "ingredient": "Moong dal (split, husked)",
+      "amount": "100 g",
+      "r...
+
+[STEP 2]
+  tokens: input=1661, output=493, cost=$0.000545
+  action=substitute_ingredient
+  input={"allergen": "DAIRY", "ingredient": "Ghee", "reason_type": "ALLERGEN"}
+
+[TOOL RESULT]
+  {
+  "ingredient": "Ghee",
+  "constraint_type": "ALLERGEN",
+  "constraint": "DAIRY",
+  "substitute": "coconut oil",
+  "note": "Use equal amount of coconut oil for a vegan/dairy-free alternative.",
+  "needs_further_check": false
+}
+
+[STEP 3]
+  tokens: input=1782, output=1462, cost=$0.001144
+  decision=final_answer
+
+[FINAL]
+  title: Ven Pongal (adapted)
+  servings: Serves 4
+  ingredients: 10 items
+  substitutions: ['Ghee -> coconut oil (dairy-free alternative)']
+
+[RUN END] request_id=agent_REQ_03
+  iterations=3, tokens=6480, cost=$0.001891, latency=15715.0ms
+
+======================================================================
+WORKFLOW — REQ_03
+======================================================================
+
+[WORKFLOW START] request_id=workflow_REQ_03
+  request: Give me the Ven Pongal recipe, but I'm dairy-free. Replace any dairy ingredients.
+
+[STEP 1] action=parse_request
+  parsed: {"recipe_query": "Ven Pongal", "target_servings": null, "dietary_constraints": ["DAIRY_FREE"], "allergen_constraints": ["DAIRY"]}
+  tokens: input=304, output=505, cost=$0.000349
+
+[STEP 2] action=search_recipe
+  query: Ven Pongal
+  found: True
+  recipe: Ven Pongal (ven_pongal)
+
+[STEP 3] action=substitute_ingredient
+  ingredient: Ghee, reason: ALLERGEN, constraint: DAIRY
+  substitute: coconut oil
+
+[STEP 4] action=generate_final_response
+
+[FINAL]
+  title: Ven Pongal (Dairy-Free)
+  servings: Serves 4
+  ingredients: 10 items
+
+[WORKFLOW END] request_id=workflow_REQ_03
+  iterations=4, tokens=3084, cost=$0.001291, latency=51867.2ms
+
+======================================================================
+AGENT — REQ_04
+======================================================================
+
+[RUN START] request_id=agent_REQ_04
+  request: Get me the Sambar recipe for 10 servings and make it gluten-free.
+  budgets: max_iters=10, max_tokens=30000, max_cost=0.1, max_wall_clock=120
+
+[STEP 1]
+  tokens: input=992, output=97, cost=$0.000207
+  action=search_recipe
+  input={"query": "Sambar"}
+
+[TOOL RESULT]
+  {
+  "found": true,
+  "recipe_id": "sambar",
+  "title": "Sambar",
+  "description": "Tangy lentil stew with vegetables and spices",
+  "cuisine": "South Indian (Tamil Nadu)",
+  "dietary_tags": "Vegan, Gluten-Free (check asafoetida)",
+  "allergens": "May contain gluten (some asafoetida brands use wheat flour filler)",
+  "yield": "4-6 servings",
+  "ingredients": [
+    {
+      "ingredient": "Toor dal (split pigeon pea)",
+      "amount": "200 g",
+      "ratio %": "-"
+    },
+    {
+      "ingredient": "M...
+
+[STEP 2]
+  tokens: input=1693, output=748, cost=$0.000703
+  action=substitute_ingredient
+  input={"allergen": "GLUTEN", "ingredient": "Asafoetida", "reason_type": "ALLERGEN"}
+
+[TOOL RESULT]
+  {
+  "ingredient": "Asafoetida",
+  "constraint_type": "ALLERGEN",
+  "constraint": "GLUTEN",
+  "substitute": "gluten-free asafoetida",
+  "note": "Use asafoetida certified gluten-free (some brands use wheat filler).",
+  "needs_further_check": false
+}
+
+[STEP 3]
+  tokens: input=1827, output=518, cost=$0.000585
+  action=scale_recipe
+  input={"original_servings": 4, "recipe_id": "sambar", "target_servings": 10}
+
+[TOOL RESULT]
+  {
+  "recipe_id": "sambar",
+  "title": "Sambar",
+  "original_servings": 4,
+  "target_servings": 10,
+  "scale_factor": 2.5,
+  "scaled_ingredients": [
+    {
+      "ingredient": "Toor dal (split pigeon pea)",
+      "original_amount": "200 g",
+      "scaled_amount": "500 g",
+      "ratio": "-"
+    },
+    {
+      "ingredient": "Mixed vegetables (drumstick, brinjal, etc.)",
+      "original_amount": "300 g",
+      "scaled_amount": "750 g",
+      "ratio": "-"
+    },
+    {
+      "ingredient": "Tamarind (s...
+
+[STEP 4]
+  LLM call failed: Error calling model 'gemini-3.6-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 242.512819ms.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '0s'}]}}
+
+[RUN END] request_id=agent_REQ_04
+  iterations=3, tokens=5875, cost=$0.001495, latency=51454.9ms
+  terminated_by=error
+
+======================================================================
+WORKFLOW — REQ_04
+======================================================================
+
+[WORKFLOW START] request_id=workflow_REQ_04
+  request: Get me the Sambar recipe for 10 servings and make it gluten-free.
+
+[STEP 1] action=parse_request
+
+======================================================================
+AGENT — REQ_05
+======================================================================
+
+[RUN START] request_id=agent_REQ_05
+  request: What is the Medu Vada recipe?
+  budgets: max_iters=10, max_tokens=30000, max_cost=0.1, max_wall_clock=120
+
+[STEP 1]
+  LLM call failed: Error calling model 'gemini-3.6-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 48.882123944s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-3.6-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '48s'}]}}
+
+[RUN END] request_id=agent_REQ_05
+  iterations=0, tokens=0, cost=$0.0, latency=35280.3ms
+  terminated_by=error
+
+======================================================================
+WORKFLOW — REQ_05
+======================================================================
+
+[WORKFLOW START] request_id=workflow_REQ_05
+  request: What is the Medu Vada recipe?
+
+[STEP 1] action=parse_request
+
+======================================================================
+AGENT — REQ_06
+======================================================================
+
+[RUN START] request_id=agent_REQ_06
+  request: I want to make Dosa for 30 people. Scale the recipe accordingly.
+  budgets: max_iters=10, max_tokens=30000, max_cost=0.1, max_wall_clock=120
+
+[STEP 1]
+  LLM call failed: Error calling model 'gemini-3.6-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 36.783690212s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-3.6-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '36s'}]}}
+
+[RUN END] request_id=agent_REQ_06
+  iterations=0, tokens=0, cost=$0.0, latency=35740.6ms
+  terminated_by=error
+
+======================================================================
+WORKFLOW — REQ_06
+======================================================================
+
+[WORKFLOW START] request_id=workflow_REQ_06
+  request: I want to make Dosa for 30 people. Scale the recipe accordingly.
+
+[STEP 1] action=parse_request
+
+======================================================================
+AGENT — REQ_07
+======================================================================
+
+[RUN START] request_id=agent_REQ_07
+  request: Make the Ven Pongal recipe suitable for someone with both dairy allergy and tree nut allergy.
+  budgets: max_iters=10, max_tokens=30000, max_cost=0.1, max_wall_clock=120
+
+[STEP 1]
+  LLM call failed: Error calling model 'gemini-3.6-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 21.624775693s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '21s'}]}}
+
+[RUN END] request_id=agent_REQ_07
+  iterations=0, tokens=0, cost=$0.0, latency=36756.1ms
+  terminated_by=error
+
+======================================================================
+WORKFLOW — REQ_07
+======================================================================
+
+[WORKFLOW START] request_id=workflow_REQ_07
+  request: Make the Ven Pongal recipe suitable for someone with both dairy allergy and tree nut allergy.
+
+[STEP 1] action=parse_request
+
+======================================================================
+AGENT — REQ_08
+======================================================================
+
+[RUN START] request_id=agent_REQ_08
+  request: I want the Ven Pongal recipe made fully vegan and nut-free. Scale to 8 servings.
+  budgets: max_iters=10, max_tokens=30000, max_cost=0.1, max_wall_clock=120
+
+[STEP 1]
+  LLM call failed: Error calling model 'gemini-3.6-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 7.581376146s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-3.6-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '7s'}]}}
+
+[RUN END] request_id=agent_REQ_08
+  iterations=0, tokens=0, cost=$0.0, latency=37352.2ms
+  terminated_by=error
+
+======================================================================
+WORKFLOW — REQ_08
+======================================================================
+
+[WORKFLOW START] request_id=workflow_REQ_08
+  request: I want the Ven Pongal recipe made fully vegan and nut-free. Scale to 8 servings.
+
+[STEP 1] action=parse_request
+
+======================================================================
+AGENT — REQ_09
+======================================================================
+
+[RUN START] request_id=agent_REQ_09
+  request: Adapt the Rasam recipe to be vegan. Make sure no dairy or animal products remain. Also scale to 2 servings.
+  budgets: max_iters=10, max_tokens=30000, max_cost=0.1, max_wall_clock=120
+
+[STEP 1]
+  LLM call failed: Error calling model 'gemini-3.6-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 55.21266256s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-3.6-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '55s'}]}}
+
+[RUN END] request_id=agent_REQ_09
+  iterations=0, tokens=0, cost=$0.0, latency=35516.1ms
+  terminated_by=error
+
+======================================================================
+WORKFLOW — REQ_09
+======================================================================
+
+[WORKFLOW START] request_id=workflow_REQ_09
+  request: Adapt the Rasam recipe to be vegan. Make sure no dairy or animal products remain. Also scale to 2 servings.
+
+[STEP 1] action=parse_request
+
+======================================================================
+AGENT — REQ_10
+======================================================================
+
+[RUN START] request_id=agent_REQ_10
+  request: Give me the Sambar recipe scaled to 2 servings. I have a dairy allergy.
+  budgets: max_iters=10, max_tokens=30000, max_cost=0.1, max_wall_clock=120
+
+[STEP 1]
+  LLM call failed: Error calling model 'gemini-3.6-flash' (RESOURCE_EXHAUSTED): 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\nPlease retry in 42.841758396s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '42s'}]}}
+
+[RUN END] request_id=agent_REQ_10
+  iterations=0, tokens=0, cost=$0.0, latency=35543.4ms
+  terminated_by=error
+
+======================================================================
+WORKFLOW — REQ_10
+======================================================================
+
+[WORKFLOW START] request_id=workflow_REQ_10
+  request: Give me the Sambar recipe scaled to 2 servings. I have a dairy allergy.
+
+[STEP 1] action=parse_request

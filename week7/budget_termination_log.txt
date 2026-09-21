@@ -1,0 +1,73 @@
+
+[RUN START] request_id=budget_test
+  request: Make the Ven Pongal recipe for 8 servings, dairy-free and nut-free.
+  budgets: max_iters=2, max_tokens=30000, max_cost=0.1, max_wall_clock=120
+
+[STEP 1]
+  tokens: input=993, output=91, cost=$0.000204
+  action=search_recipe
+  input={"query": "Ven Pongal"}
+
+[TOOL RESULT]
+  {
+  "found": true,
+  "recipe_id": "ven_pongal",
+  "title": "Ven Pongal",
+  "description": "Comforting savory rice and moong dal porridge",
+  "cuisine": "South Indian (Tamil Nadu)",
+  "dietary_tags": "Vegetarian, Gluten-Free",
+  "allergens": "Dairy (ghee), Tree Nuts (cashew)",
+  "yield": "4 servings",
+  "ingredients": [
+    {
+      "ingredient": "Raw rice",
+      "amount": "200 g",
+      "ratio %": "-"
+    },
+    {
+      "ingredient": "Moong dal (split, husked)",
+      "amount": "100 g",
+      "r...
+
+[STEP 2]
+  tokens: input=1659, output=138, cost=$0.000332
+  action=scale_recipe
+  input={"original_servings": 4, "recipe_id": "ven_pongal", "target_servings": 8}
+
+[TOOL RESULT]
+  {
+  "recipe_id": "ven_pongal",
+  "title": "Ven Pongal",
+  "original_servings": 4,
+  "target_servings": 8,
+  "scale_factor": 2.0,
+  "scaled_ingredients": [
+    {
+      "ingredient": "Raw rice",
+      "original_amount": "200 g",
+      "scaled_amount": "400 g",
+      "ratio": "-"
+    },
+    {
+      "ingredient": "Moong dal (split, husked)",
+      "original_amount": "100 g",
+      "scaled_amount": "200 g",
+      "ratio": "-"
+    },
+    {
+      "ingredient": "Ghee",
+      "original_amount": "50 g",
+ ...
+
+[BUDGET] budget=max_iterations, limit=2, actual=2
+[AGENT TERMINATED] reason=max_iterations
+
+[RUN END] request_id=budget_test
+  iterations=2, tokens=2881, cost=$0.000535, latency=6087.3ms
+  terminated_by=max_iterations
+
+[BUDGET TEST RESULT]
+terminated_by=max_iterations
+iterations=2
+total_tokens=2881
+cost=$0.000535

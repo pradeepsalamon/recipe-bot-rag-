@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 
 from tools import TOOL_SCHEMAS, dispatch_tool
@@ -154,6 +154,7 @@ def run_agent(
     max_wall_clock: float = DEFAULT_MAX_WALL_CLOCK,
     temperature: float = 0,
     log_callback=None,
+    system_prompt_override: str = None,
 ):
     """
     Run the recipe agent loop.
@@ -167,9 +168,9 @@ def run_agent(
     if request_id is None:
         request_id = str(uuid.uuid4())[:8]
 
-    llm = ChatGoogleGenerativeAI(model="gemini-3.6-flash", temperature=temperature)
+    llm = ChatGroq(model="qwen/qwen3.8-27b", temperature=temperature)
 
-    full_system = SYSTEM_PROMPT + "\n\n" + _build_tool_call_prompt()
+    full_system = (system_prompt_override or SYSTEM_PROMPT) + "\n\n" + _build_tool_call_prompt()
 
     messages = [
         SystemMessage(content=full_system),
@@ -220,6 +221,12 @@ def run_agent(
             break
 
         _log(f"\n[STEP {iteration}]")
+
+        # Rate limit protection for Groq free tier (7000 ITPM limit)
+        # 22s sleep guarantees we don't exceed ~2.7 calls per minute
+        if iteration > 1:
+            _log(f"  [Rate Limit] Sleeping for 22s before next LLM call...")
+            time.sleep(22)
 
         # Call the LLM
         try:
