@@ -1,0 +1,24 @@
+# Core RAG & Document Processing
+python-docx
+python-dotenv
+chromadb
+sentence-transformers
+rank-bm25
+
+# LangChain Ecosystem
+langchain
+langchain-core
+langchain-community
+langchain-text-splitters
+langchain-chroma
+langchain-huggingface
+langchain-google-genai
+langchain-groq
+
+# API & Web Server
+fastapi
+uvicorn
+pydantic
+
+# LLM Providers Direct SDK
+google-generativeai
