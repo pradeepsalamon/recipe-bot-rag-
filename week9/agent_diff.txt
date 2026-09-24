@@ -1,0 +1,5 @@
+diff --git a/week9/agent.py b/week9/agent.py
+--- a/week9/agent.py
++++ b/week9/agent.py
+@@ -1,1 +1,1 @@
+# Zero lines changed. The agent dynamically discovers new tools from mcp_config.json.

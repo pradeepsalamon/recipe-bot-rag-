@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "recipe-server": {
+      "command": "python",
+      "args": ["d:/practice/week 3/week9/mcp_server_recipe.py"]
+    },
+    "ingredient-db": {
+      "command": "python",
+      "args": ["d:/practice/week 3/week9/mcp_server_ingredient.py"]
+    }
+  }
+}

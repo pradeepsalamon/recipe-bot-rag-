@@ -1,0 +1,16 @@
+diff --git a/week9/mcp_config.json b/week9/mcp_config.json
+--- a/week9/mcp_config.json
++++ b/week9/mcp_config.json
+@@ -2,6 +2,10 @@
+   "mcpServers": {
+     "recipe-server": {
+       "command": "python",
+       "args": ["d:/practice/week 3/week9/mcp_server_recipe.py"]
+-    }
++    },
++    "ingredient-db": {
++      "command": "python",
++      "args": ["d:/practice/week 3/week9/mcp_server_ingredient.py"]
++    }
+   }
+ }

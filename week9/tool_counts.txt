@@ -1,0 +1,5 @@
+Before adding Server 2: 3 tools discovered.
+Tools: ['do_search_recipe', 'do_scale_recipe', 'do_substitute_ingredient']
+
+After adding Server 2: 4 tools discovered.
+Tools: ['do_search_recipe', 'do_scale_recipe', 'do_substitute_ingredient', 'lookup_ingredient_nutrition']

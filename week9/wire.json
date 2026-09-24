@@ -1,0 +1,38 @@
+{
+  "// NOTE": "The Model Call happens entirely on the client side (agent.py) deciding which tool to call based on user prompt and tools/list schema. It DOES NOT happen inside the MCP server.",
+  "trace": [
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "initialize",
+      "params": {
+        "protocolVersion": "2024-11-05",
+        "capabilities": {},
+        "clientInfo": {
+          "name": "mcp-agent",
+          "version": "1.0.0"
+        }
+      },
+      "// annotation_initialize": "Client initiates handshake to establish protocol version and capabilities with the ingredient-db server."
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "method": "tools/list",
+      "params": {},
+      "// annotation_tools_list": "Client requests the list of tools the server exposes. The server will return lookup_ingredient_nutrition."
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "method": "tools/call",
+      "params": {
+        "name": "lookup_ingredient_nutrition",
+        "arguments": {
+          "ingredient_name": "peanuts"
+        }
+      },
+      "// annotation_tools_call": "Client invokes the tool on the server with arguments formulated by the LLM."
+    }
+  ]
+}
