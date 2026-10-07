@@ -5,23 +5,23 @@
     "prompt_tokens": 266,
     "completion_tokens": 238,
     "total_tokens": 504,
-    "latency_ms": 705.32
+    "latency_ms": 709.28
   },
   {
     "handoff": "orchestrator -> allergen_worker",
     "case_id": "case_01",
     "prompt_tokens": 321,
-    "completion_tokens": 175,
-    "total_tokens": 496,
-    "latency_ms": 650.01
+    "completion_tokens": 130,
+    "total_tokens": 451,
+    "latency_ms": 1306.44
   },
   {
     "handoff": "workers -> orchestrator_synthesis",
     "case_id": "case_01",
     "prompt_tokens": 347,
-    "completion_tokens": 138,
-    "total_tokens": 485,
-    "latency_ms": 642.11
+    "completion_tokens": 144,
+    "total_tokens": 491,
+    "latency_ms": 730.13
   },
   {
     "handoff": "orchestrator -> substitution_worker",
@@ -29,143 +29,143 @@
     "prompt_tokens": 266,
     "completion_tokens": 238,
     "total_tokens": 504,
-    "latency_ms": 699.36
+    "latency_ms": 682.58
   },
   {
     "handoff": "orchestrator -> allergen_worker",
     "case_id": "case_03",
     "prompt_tokens": 321,
-    "completion_tokens": 175,
-    "total_tokens": 496,
-    "latency_ms": 673.35
+    "completion_tokens": 132,
+    "total_tokens": 453,
+    "latency_ms": 1053.78
   },
   {
     "handoff": "workers -> orchestrator_synthesis",
     "case_id": "case_03",
     "prompt_tokens": 347,
-    "completion_tokens": 138,
-    "total_tokens": 485,
-    "latency_ms": 608.48
+    "completion_tokens": 144,
+    "total_tokens": 491,
+    "latency_ms": 1848.8
   },
   {
     "handoff": "orchestrator -> substitution_worker",
     "case_id": "case_11",
     "prompt_tokens": 267,
-    "completion_tokens": 336,
-    "total_tokens": 603,
-    "latency_ms": 1171.77
+    "completion_tokens": 427,
+    "total_tokens": 694,
+    "latency_ms": 888.07
   },
   {
     "handoff": "orchestrator -> allergen_worker",
     "case_id": "case_11",
     "prompt_tokens": 320,
-    "completion_tokens": 261,
-    "total_tokens": 581,
-    "latency_ms": 732.4
+    "completion_tokens": 215,
+    "total_tokens": 535,
+    "latency_ms": 669.81
   },
   {
     "handoff": "workers -> orchestrator_synthesis",
     "case_id": "case_11",
-    "prompt_tokens": 385,
-    "completion_tokens": 129,
+    "prompt_tokens": 399,
+    "completion_tokens": 106,
+    "total_tokens": 505,
+    "latency_ms": 2189.82
+  },
+  {
+    "handoff": "orchestrator -> substitution_worker",
+    "case_id": "case_14",
+    "prompt_tokens": 267,
+    "completion_tokens": 715,
+    "total_tokens": 982,
+    "latency_ms": 1131.94
+  },
+  {
+    "handoff": "orchestrator -> allergen_worker",
+    "case_id": "case_14",
+    "prompt_tokens": 320,
+    "completion_tokens": 194,
     "total_tokens": 514,
-    "latency_ms": 989.13
+    "latency_ms": 703.16
+  },
+  {
+    "handoff": "workers -> orchestrator_synthesis",
+    "case_id": "case_14",
+    "prompt_tokens": 400,
+    "completion_tokens": 144,
+    "total_tokens": 544,
+    "latency_ms": 606.32
   },
   {
     "handoff": "orchestrator -> substitution_worker",
-    "case_id": "case_14",
-    "prompt_tokens": 267,
+    "case_id": "case_16",
+    "prompt_tokens": 261,
+    "completion_tokens": 257,
+    "total_tokens": 518,
+    "latency_ms": 778.7
+  },
+  {
+    "handoff": "orchestrator -> allergen_worker",
+    "case_id": "case_16",
+    "prompt_tokens": 321,
     "completion_tokens": 336,
-    "total_tokens": 603,
-    "latency_ms": 1063.81
-  },
-  {
-    "handoff": "orchestrator -> allergen_worker",
-    "case_id": "case_14",
-    "prompt_tokens": 320,
-    "completion_tokens": 196,
-    "total_tokens": 516,
-    "latency_ms": 691.02
-  },
-  {
-    "handoff": "workers -> orchestrator_synthesis",
-    "case_id": "case_14",
-    "prompt_tokens": 409,
-    "completion_tokens": 129,
-    "total_tokens": 538,
-    "latency_ms": 484.32
-  },
-  {
-    "handoff": "orchestrator -> substitution_worker",
-    "case_id": "case_16",
-    "prompt_tokens": 261,
-    "completion_tokens": 207,
-    "total_tokens": 468,
-    "latency_ms": 687.84
-  },
-  {
-    "handoff": "orchestrator -> allergen_worker",
-    "case_id": "case_16",
-    "prompt_tokens": 321,
-    "completion_tokens": 328,
-    "total_tokens": 649,
-    "latency_ms": 843.06
+    "total_tokens": 657,
+    "latency_ms": 507.94
   },
   {
     "handoff": "workers -> orchestrator_synthesis",
     "case_id": "case_16",
-    "prompt_tokens": 386,
-    "completion_tokens": 152,
-    "total_tokens": 538,
-    "latency_ms": 1020.09
+    "prompt_tokens": 403,
+    "completion_tokens": 151,
+    "total_tokens": 554,
+    "latency_ms": 586.59
   },
   {
     "handoff": "orchestrator -> substitution_worker",
     "case_id": "case_18",
     "prompt_tokens": 261,
-    "completion_tokens": 258,
-    "total_tokens": 519,
-    "latency_ms": 633.12
+    "completion_tokens": 257,
+    "total_tokens": 518,
+    "latency_ms": 647.68
   },
   {
     "handoff": "orchestrator -> allergen_worker",
     "case_id": "case_18",
     "prompt_tokens": 321,
-    "completion_tokens": 381,
-    "total_tokens": 702,
-    "latency_ms": 711.76
+    "completion_tokens": 336,
+    "total_tokens": 657,
+    "latency_ms": 829.13
   },
   {
     "handoff": "workers -> orchestrator_synthesis",
     "case_id": "case_18",
-    "prompt_tokens": 401,
-    "completion_tokens": 125,
-    "total_tokens": 526,
-    "latency_ms": 585.54
+    "prompt_tokens": 403,
+    "completion_tokens": 151,
+    "total_tokens": 554,
+    "latency_ms": 629.83
   },
   {
     "handoff": "orchestrator -> substitution_worker",
     "case_id": "case_19",
     "prompt_tokens": 250,
-    "completion_tokens": 235,
-    "total_tokens": 485,
-    "latency_ms": 759.47
+    "completion_tokens": 231,
+    "total_tokens": 481,
+    "latency_ms": 769.05
   },
   {
     "handoff": "orchestrator -> allergen_worker",
     "case_id": "case_19",
     "prompt_tokens": 311,
-    "completion_tokens": 180,
-    "total_tokens": 491,
-    "latency_ms": 671.6
+    "completion_tokens": 184,
+    "total_tokens": 495,
+    "latency_ms": 667.9
   },
   {
     "handoff": "workers -> orchestrator_synthesis",
     "case_id": "case_19",
     "prompt_tokens": 345,
-    "completion_tokens": 138,
-    "total_tokens": 483,
-    "latency_ms": 1084.97
+    "completion_tokens": 145,
+    "total_tokens": 490,
+    "latency_ms": 608.31
   },
   {
     "handoff": "orchestrator -> substitution_worker",
@@ -173,7 +173,7 @@
     "prompt_tokens": 246,
     "completion_tokens": 236,
     "total_tokens": 482,
-    "latency_ms": 717.11
+    "latency_ms": 754.63
   },
   {
     "handoff": "orchestrator -> allergen_worker (FAILED \u2014 500)",
@@ -188,17 +188,17 @@
     "handoff": "orchestrator -> allergen_worker",
     "case_id": "case_22",
     "prompt_tokens": 301,
-    "completion_tokens": 173,
-    "total_tokens": 474,
-    "latency_ms": 630.17
+    "completion_tokens": 423,
+    "total_tokens": 724,
+    "latency_ms": 947.22
   },
   {
     "handoff": "workers -> orchestrator_synthesis",
     "case_id": "case_22",
-    "prompt_tokens": 332,
-    "completion_tokens": 148,
-    "total_tokens": 480,
-    "latency_ms": 703.32
+    "prompt_tokens": 409,
+    "completion_tokens": 158,
+    "total_tokens": 567,
+    "latency_ms": 486.94
   },
   {
     "handoff": "orchestrator -> substitution_worker",
@@ -206,22 +206,22 @@
     "prompt_tokens": 246,
     "completion_tokens": 236,
     "total_tokens": 482,
-    "latency_ms": 704.25
+    "latency_ms": 896.54
   },
   {
     "handoff": "orchestrator -> allergen_worker",
     "case_id": "case_24",
     "prompt_tokens": 301,
-    "completion_tokens": 173,
-    "total_tokens": 474,
-    "latency_ms": 580.82
+    "completion_tokens": 302,
+    "total_tokens": 603,
+    "latency_ms": 787.51
   },
   {
     "handoff": "workers -> orchestrator_synthesis",
     "case_id": "case_24",
-    "prompt_tokens": 332,
-    "completion_tokens": 142,
-    "total_tokens": 474,
-    "latency_ms": 617.79
+    "prompt_tokens": 391,
+    "completion_tokens": 147,
+    "total_tokens": 538,
+    "latency_ms": 625.65
   }
 ]

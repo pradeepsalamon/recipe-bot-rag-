@@ -2,17 +2,17 @@
   {
     "case_id": "case_01",
     "verdict": "Fail",
-    "total_tokens": 1485,
-    "latency_ms": 1997.44,
+    "total_tokens": 1446,
+    "latency_ms": 2745.85,
     "sub_tokens": 504,
-    "allergen_tokens": 496,
-    "synthesis_tokens": 485,
+    "allergen_tokens": 451,
+    "synthesis_tokens": 491,
     "sub_result": {
       "substitution_viable": false,
       "prompt_tokens": 266,
       "completion_tokens": 238,
       "total_tokens": 504,
-      "latency_ms": 705.32,
+      "latency_ms": 709.28,
       "raw_response": "{\n  \"substitution_viable\": false,\n  \"reasoning\": \"Replacing butter with applesauce can work in brownies, but the recipe as written is incomplete\u2014missing eggs, leavening, salt, and vanilla\u2014so the resulting batter will lack structure and flavor. The substitution itself is plausible, but the recipe does not correctly apply it.\"\n}"
     },
     "allergen_result": {
@@ -20,17 +20,17 @@
       "recipe_integrity_passed": true,
       "allergen_issues": "none",
       "prompt_tokens": 321,
-      "completion_tokens": 175,
-      "total_tokens": 496,
-      "latency_ms": 650.01,
+      "completion_tokens": 130,
+      "total_tokens": 451,
+      "latency_ms": 1306.44,
       "raw_response": "{\n  \"allergen_check_passed\": true,\n  \"recipe_integrity_passed\": true,\n  \"allergen_issues\": \"none\"\n}"
     },
     "synthesis_result": {
       "case_id": "case_01",
       "verdict": "Fail",
-      "synthesis_tokens": 485,
-      "synthesis_latency_ms": 642.11,
-      "raw_response": "{\"overall_verdict\":\"Fail\",\"reasoning\":\"Substitution not viable due to missing ingredients, but allergen check passed.\"}"
+      "synthesis_tokens": 491,
+      "synthesis_latency_ms": 730.13,
+      "raw_response": "{\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"Substitution not viable due to missing ingredients, but allergen check passed.\"\n}"
     },
     "failure_injected": false,
     "orchestrator_behaviour": null,
@@ -39,17 +39,17 @@
   {
     "case_id": "case_03",
     "verdict": "Fail",
-    "total_tokens": 1485,
-    "latency_ms": 1981.19,
+    "total_tokens": 1448,
+    "latency_ms": 3585.16,
     "sub_tokens": 504,
-    "allergen_tokens": 496,
-    "synthesis_tokens": 485,
+    "allergen_tokens": 453,
+    "synthesis_tokens": 491,
     "sub_result": {
       "substitution_viable": false,
       "prompt_tokens": 266,
       "completion_tokens": 238,
       "total_tokens": 504,
-      "latency_ms": 699.36,
+      "latency_ms": 682.58,
       "raw_response": "{\n  \"substitution_viable\": false,\n  \"reasoning\": \"Replacing butter with applesauce can work in brownies, but the recipe as written is incomplete\u2014missing eggs, leavening, salt, and vanilla\u2014so the resulting batter will lack structure and flavor. The substitution itself is plausible, but the recipe does not correctly apply it.\"\n}"
     },
     "allergen_result": {
@@ -57,17 +57,17 @@
       "recipe_integrity_passed": true,
       "allergen_issues": "none",
       "prompt_tokens": 321,
-      "completion_tokens": 175,
-      "total_tokens": 496,
-      "latency_ms": 673.35,
+      "completion_tokens": 132,
+      "total_tokens": 453,
+      "latency_ms": 1053.78,
       "raw_response": "{\n  \"allergen_check_passed\": true,\n  \"recipe_integrity_passed\": true,\n  \"allergen_issues\": \"none\"\n}"
     },
     "synthesis_result": {
       "case_id": "case_03",
       "verdict": "Fail",
-      "synthesis_tokens": 485,
-      "synthesis_latency_ms": 608.48,
-      "raw_response": "{\"overall_verdict\":\"Fail\",\"reasoning\":\"Substitution not viable due to missing ingredients, but allergen check passed.\"}"
+      "synthesis_tokens": 491,
+      "synthesis_latency_ms": 1848.8,
+      "raw_response": "{\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"Substitution not viable due to missing ingredients, but allergen check passed.\"\n}"
     },
     "failure_injected": false,
     "orchestrator_behaviour": null,
@@ -76,35 +76,35 @@
   {
     "case_id": "case_11",
     "verdict": "Fail",
-    "total_tokens": 1698,
-    "latency_ms": 2893.3,
-    "sub_tokens": 603,
-    "allergen_tokens": 581,
-    "synthesis_tokens": 514,
+    "total_tokens": 1734,
+    "latency_ms": 3747.7,
+    "sub_tokens": 694,
+    "allergen_tokens": 535,
+    "synthesis_tokens": 505,
     "sub_result": {
       "substitution_viable": false,
       "prompt_tokens": 267,
-      "completion_tokens": 336,
-      "total_tokens": 603,
-      "latency_ms": 1171.77,
-      "raw_response": "{\n  \"substitution_viable\": false,\n  \"reasoning\": \"Adding peanuts for crunch is fine, but the generated recipe omitted essential ingredients like eggs, vanilla, and leavening agents. Without them the batter will lack structure and flavor balance, resulting in a crumbly, unpalatable brownie.\"\n}"
+      "completion_tokens": 427,
+      "total_tokens": 694,
+      "latency_ms": 888.07,
+      "raw_response": "{\n  \"substitution_viable\": false,\n  \"reasoning\": \"Adding peanuts for crunch is a reasonable idea, but the generated recipe omits essential brownie components (eggs, vanilla, and chocolate chips or more cocoa) and uses an overly simplified method. As written, the batter would lack structure and flavor balance, making the final product unlikely to be a true, palatable brownie.\"\n}"
     },
     "allergen_result": {
       "allergen_check_passed": false,
       "recipe_integrity_passed": true,
-      "allergen_issues": "Allergen warning omitted for dairy (butter), tree nuts (peanuts), and gluten (flour).",
+      "allergen_issues": "Allergen warning omitted allergens present in the ingredients: dairy (butter), gluten (flour), and peanuts. The warning should list these allergens.",
       "prompt_tokens": 320,
-      "completion_tokens": 261,
-      "total_tokens": 581,
-      "latency_ms": 732.4,
-      "raw_response": "{\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"allergen_issues\": \"Allergen warning omitted for dairy (butter), tree nuts (peanuts), and gluten (flour).\"\n}"
+      "completion_tokens": 215,
+      "total_tokens": 535,
+      "latency_ms": 669.81,
+      "raw_response": "{\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"allergen_issues\": \"Allergen warning omitted allergens present in the ingredients: dairy (butter), gluten (flour), and peanuts. The warning should list these allergens.\"\n}"
     },
     "synthesis_result": {
       "case_id": "case_11",
       "verdict": "Fail",
-      "synthesis_tokens": 514,
-      "synthesis_latency_ms": 989.13,
-      "raw_response": "{\"overall_verdict\":\"Fail\",\"reasoning\":\"Substitution not viable due to missing key ingredients, and allergen warnings omitted for dairy, nuts, and gluten.\"}"
+      "synthesis_tokens": 505,
+      "synthesis_latency_ms": 2189.82,
+      "raw_response": "{\"overall_verdict\":\"Fail\",\"reasoning\":\"Substitution not viable and allergen warning omitted, so recipe fails.\"}"
     },
     "failure_injected": false,
     "orchestrator_behaviour": null,
@@ -113,35 +113,35 @@
   {
     "case_id": "case_14",
     "verdict": "Fail",
-    "total_tokens": 1657,
-    "latency_ms": 2239.15,
-    "sub_tokens": 603,
-    "allergen_tokens": 516,
-    "synthesis_tokens": 538,
+    "total_tokens": 2040,
+    "latency_ms": 2441.42,
+    "sub_tokens": 982,
+    "allergen_tokens": 514,
+    "synthesis_tokens": 544,
     "sub_result": {
-      "substitution_viable": false,
+      "substitution_viable": true,
       "prompt_tokens": 267,
-      "completion_tokens": 336,
-      "total_tokens": 603,
-      "latency_ms": 1063.81,
-      "raw_response": "{\n  \"substitution_viable\": false,\n  \"reasoning\": \"Adding peanuts for crunch is fine, but the generated recipe omitted essential ingredients like eggs, vanilla, and leavening agents. Without them the batter will lack structure and flavor balance, resulting in a crumbly, unpalatable brownie.\"\n}"
+      "completion_tokens": 715,
+      "total_tokens": 982,
+      "latency_ms": 1131.94,
+      "raw_response": "{\n  \"substitution_viable\": true,\n  \"reasoning\": \"Adding peanuts for crunch is a common and tasty brownie variation. The substitution itself is reasonable and would likely result in a palatable dessert. However, the generated recipe omits essential ingredients like eggs and vanilla, which are critical for structure and flavor, so the recipe as written is incomplete. The substitution is viable, but the recipe needs adjustment to be fully correct.\"\n}"
     },
     "allergen_result": {
       "allergen_check_passed": false,
       "recipe_integrity_passed": true,
-      "allergen_issues": "Allergen warning is incorrect and incomplete. The recipe contains dairy (butter), gluten (flour), and peanuts (tree nuts), yet the warning states 'None'.",
+      "allergen_issues": "Allergen warning is incorrect and incomplete. The recipe contains dairy (butter), gluten (flour), and peanuts, yet the warning states \"None.\"",
       "prompt_tokens": 320,
-      "completion_tokens": 196,
-      "total_tokens": 516,
-      "latency_ms": 691.02,
-      "raw_response": "{\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"allergen_issues\": \"Allergen warning is incorrect and incomplete. The recipe contains dairy (butter), gluten (flour), and peanuts (tree nuts), yet the warning states 'None'.\"\n}"
+      "completion_tokens": 194,
+      "total_tokens": 514,
+      "latency_ms": 703.16,
+      "raw_response": "{\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"allergen_issues\": \"Allergen warning is incorrect and incomplete. The recipe contains dairy (butter), gluten (flour), and peanuts, yet the warning states \\\"None.\\\"\"\n}"
     },
     "synthesis_result": {
       "case_id": "case_14",
       "verdict": "Fail",
-      "synthesis_tokens": 538,
-      "synthesis_latency_ms": 484.32,
-      "raw_response": "{\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"Substitution not viable due to missing key ingredients, and allergen warning is incorrect and incomplete.\"\n}"
+      "synthesis_tokens": 544,
+      "synthesis_latency_ms": 606.32,
+      "raw_response": "{\"overall_verdict\":\"Fail\",\"reasoning\":\"Substitution omitted essential ingredients and allergen warning is incorrect, so recipe fails.\"}"
     },
     "failure_injected": false,
     "orchestrator_behaviour": null,
@@ -150,35 +150,35 @@
   {
     "case_id": "case_16",
     "verdict": "Fail",
-    "total_tokens": 1655,
-    "latency_ms": 2550.99,
-    "sub_tokens": 468,
-    "allergen_tokens": 649,
-    "synthesis_tokens": 538,
+    "total_tokens": 1729,
+    "latency_ms": 1873.23,
+    "sub_tokens": 518,
+    "allergen_tokens": 657,
+    "synthesis_tokens": 554,
     "sub_result": {
       "substitution_viable": false,
       "prompt_tokens": 261,
-      "completion_tokens": 207,
-      "total_tokens": 468,
-      "latency_ms": 687.84,
-      "raw_response": "{\n  \"substitution_viable\": false,\n  \"reasoning\": \"Replacing milk with ketchup in a vanilla cake is not a reasonable culinary substitution. Ketchup is acidic, savory, and thick, which would drastically alter the flavor profile, color, and texture of the cake, likely resulting in an unpalatable, overly sweet and tomato\u2011flavored dessert. The recipe does not compensate for the loss of milk\u2019s moisture or leavening contribution, making the substitution impractical.\"\n}"
+      "completion_tokens": 257,
+      "total_tokens": 518,
+      "latency_ms": 778.7,
+      "raw_response": "{\n  \"substitution_viable\": false,\n  \"reasoning\": \"Replacing milk with ketchup in a vanilla cake changes the flavor profile from sweet, mild to sweet\u2011savory and acidic, and the thicker consistency of ketchup would alter the batter\u2019s moisture and rise. The resulting cake would be unpalatable as a traditional cake and the recipe does not account for these changes.\"\n}"
     },
     "allergen_result": {
       "allergen_check_passed": false,
       "recipe_integrity_passed": true,
-      "allergen_issues": "Allergen warning is incomplete: butter is dairy but the warning does not mention dairy. No fabricated allergen claims.",
+      "allergen_issues": "Allergen warning lists gluten and eggs but omits dairy (butter). If the ketchup contains soy, that allergen is also unlisted.",
       "prompt_tokens": 321,
-      "completion_tokens": 328,
-      "total_tokens": 649,
-      "latency_ms": 843.06,
-      "raw_response": "{\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"allergen_issues\": \"Allergen warning is incomplete: butter is dairy but the warning does not mention dairy. No fabricated allergen claims.\"\n}"
+      "completion_tokens": 336,
+      "total_tokens": 657,
+      "latency_ms": 507.94,
+      "raw_response": "{\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"allergen_issues\": \"Allergen warning lists gluten and eggs but omits dairy (butter). If the ketchup contains soy, that allergen is also unlisted.\"\n}"
     },
     "synthesis_result": {
       "case_id": "case_16",
       "verdict": "Fail",
-      "synthesis_tokens": 538,
-      "synthesis_latency_ms": 1020.09,
-      "raw_response": "{\"overall_verdict\":\"Fail\",\"reasoning\":\"Substitution not viable and allergen warning incomplete, so recipe fails.\"}"
+      "synthesis_tokens": 554,
+      "synthesis_latency_ms": 586.59,
+      "raw_response": "{\"overall_verdict\":\"Fail\",\"reasoning\":\"Substitution not viable and allergen warnings missing, so recipe fails.\"}"
     },
     "failure_injected": false,
     "orchestrator_behaviour": null,
@@ -187,35 +187,35 @@
   {
     "case_id": "case_18",
     "verdict": "Fail",
-    "total_tokens": 1747,
-    "latency_ms": 1930.42,
-    "sub_tokens": 519,
-    "allergen_tokens": 702,
-    "synthesis_tokens": 526,
+    "total_tokens": 1729,
+    "latency_ms": 2106.64,
+    "sub_tokens": 518,
+    "allergen_tokens": 657,
+    "synthesis_tokens": 554,
     "sub_result": {
       "substitution_viable": false,
       "prompt_tokens": 261,
-      "completion_tokens": 258,
-      "total_tokens": 519,
-      "latency_ms": 633.12,
+      "completion_tokens": 257,
+      "total_tokens": 518,
+      "latency_ms": 647.68,
       "raw_response": "{\n  \"substitution_viable\": false,\n  \"reasoning\": \"Replacing milk with ketchup in a vanilla cake changes the flavor profile from sweet, mild to sweet\u2011savory and acidic, and the thicker consistency of ketchup would alter the batter\u2019s moisture and rise. The resulting cake would be unpalatable as a traditional cake and the recipe does not account for these changes.\"\n}"
     },
     "allergen_result": {
       "allergen_check_passed": false,
       "recipe_integrity_passed": true,
-      "allergen_issues": "Allergen warning is incomplete \u2013 it lists gluten and eggs but omits dairy (butter) and potential soy from ketchup.",
+      "allergen_issues": "Allergen warning lists gluten and eggs but omits dairy (butter). If the ketchup contains soy, that allergen is also unlisted.",
       "prompt_tokens": 321,
-      "completion_tokens": 381,
-      "total_tokens": 702,
-      "latency_ms": 711.76,
-      "raw_response": "{\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"allergen_issues\": \"Allergen warning is incomplete \u2013 it lists gluten and eggs but omits dairy (butter) and potential soy from ketchup.\"\n}"
+      "completion_tokens": 336,
+      "total_tokens": 657,
+      "latency_ms": 829.13,
+      "raw_response": "{\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"allergen_issues\": \"Allergen warning lists gluten and eggs but omits dairy (butter). If the ketchup contains soy, that allergen is also unlisted.\"\n}"
     },
     "synthesis_result": {
       "case_id": "case_18",
       "verdict": "Fail",
-      "synthesis_tokens": 526,
-      "synthesis_latency_ms": 585.54,
-      "raw_response": "{\"overall_verdict\":\"Fail\",\"reasoning\":\"Substitution of milk with ketchup is not viable and the allergen warning is incomplete.\"}"
+      "synthesis_tokens": 554,
+      "synthesis_latency_ms": 629.83,
+      "raw_response": "{\"overall_verdict\":\"Fail\",\"reasoning\":\"Substitution not viable and allergen warnings missing, so recipe fails.\"}"
     },
     "failure_injected": false,
     "orchestrator_behaviour": null,
@@ -224,17 +224,17 @@
   {
     "case_id": "case_19",
     "verdict": "Fail",
-    "total_tokens": 1459,
-    "latency_ms": 2516.04,
-    "sub_tokens": 485,
-    "allergen_tokens": 491,
-    "synthesis_tokens": 483,
+    "total_tokens": 1466,
+    "latency_ms": 2045.26,
+    "sub_tokens": 481,
+    "allergen_tokens": 495,
+    "synthesis_tokens": 490,
     "sub_result": {
       "substitution_viable": false,
       "prompt_tokens": 250,
-      "completion_tokens": 235,
-      "total_tokens": 485,
-      "latency_ms": 759.47,
+      "completion_tokens": 231,
+      "total_tokens": 481,
+      "latency_ms": 769.05,
       "raw_response": "{\n  \"substitution_viable\": false,\n  \"reasoning\": \"Replacing sugar with salt drastically changes the flavor profile from sweet to overly salty. The recipe uses 2\u202fTbsp of salt, which is far too much for pancakes and would make the dish unpalatable. The substitution is not reasonable or correctly applied.\"\n}"
     },
     "allergen_result": {
@@ -242,17 +242,17 @@
       "recipe_integrity_passed": true,
       "allergen_issues": "none",
       "prompt_tokens": 311,
-      "completion_tokens": 180,
-      "total_tokens": 491,
-      "latency_ms": 671.6,
+      "completion_tokens": 184,
+      "total_tokens": 495,
+      "latency_ms": 667.9,
       "raw_response": "{\n  \"allergen_check_passed\": true,\n  \"recipe_integrity_passed\": true,\n  \"allergen_issues\": \"none\"\n}"
     },
     "synthesis_result": {
       "case_id": "case_19",
       "verdict": "Fail",
-      "synthesis_tokens": 483,
-      "synthesis_latency_ms": 1084.97,
-      "raw_response": "{\"overall_verdict\":\"Fail\",\"reasoning\":\"Substitution not viable due to drastic flavor change, but allergen check passed.\"}"
+      "synthesis_tokens": 490,
+      "synthesis_latency_ms": 608.31,
+      "raw_response": "{\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"Substitution not viable due to drastic flavor change, though allergen check passed.\"\n}"
     },
     "failure_injected": false,
     "orchestrator_behaviour": null,
@@ -261,35 +261,35 @@
   {
     "case_id": "case_22",
     "verdict": "Fail",
-    "total_tokens": 1436,
-    "latency_ms": 2050.6,
+    "total_tokens": 1773,
+    "latency_ms": 2188.79,
     "sub_tokens": 482,
-    "allergen_tokens": 474,
-    "synthesis_tokens": 480,
+    "allergen_tokens": 724,
+    "synthesis_tokens": 567,
     "sub_result": {
       "substitution_viable": true,
       "prompt_tokens": 246,
       "completion_tokens": 236,
       "total_tokens": 482,
-      "latency_ms": 717.11,
+      "latency_ms": 754.63,
       "raw_response": "{\n  \"substitution_viable\": true,\n  \"reasoning\": \"Adding chili powder to a basic tomato soup is a common, straightforward way to introduce heat. The recipe correctly incorporates the spice, and the resulting dish should be flavorful and palatable.\"\n}"
     },
     "allergen_result": {
-      "allergen_check_passed": true,
+      "allergen_check_passed": false,
       "recipe_integrity_passed": false,
-      "allergen_issues": "none",
+      "allergen_issues": "Allergen warning is incomplete \u2013 vegetable broth can contain soy or wheat, yet the warning states 'None'. Additionally, chili powder is used in the method but not listed in the ingredients.",
       "prompt_tokens": 301,
-      "completion_tokens": 173,
-      "total_tokens": 474,
-      "latency_ms": 630.17,
-      "raw_response": "{\n  \"allergen_check_passed\": true,\n  \"recipe_integrity_passed\": false,\n  \"allergen_issues\": \"none\"\n}"
+      "completion_tokens": 423,
+      "total_tokens": 724,
+      "latency_ms": 947.22,
+      "raw_response": "{\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": false,\n  \"allergen_issues\": \"Allergen warning is incomplete \u2013 vegetable broth can contain soy or wheat, yet the warning states 'None'. Additionally, chili powder is used in the method but not listed in the ingredients.\"\n}"
     },
     "synthesis_result": {
       "case_id": "case_22",
       "verdict": "Fail",
-      "synthesis_tokens": 480,
-      "synthesis_latency_ms": 703.32,
-      "raw_response": "{\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"Substitution viable, but recipe integrity failed, so overall fail.\"\n}"
+      "synthesis_tokens": 567,
+      "synthesis_latency_ms": 486.94,
+      "raw_response": "{\"overall_verdict\":\"Fail\",\"reasoning\":\"Substitution is viable, but allergen warning is incomplete and chili powder is missing from the ingredient list, so the recipe fails.\"}"
     },
     "failure_injected": true,
     "orchestrator_behaviour": "retried",
@@ -298,35 +298,35 @@
   {
     "case_id": "case_24",
     "verdict": "Fail",
-    "total_tokens": 1430,
-    "latency_ms": 1902.86,
+    "total_tokens": 1623,
+    "latency_ms": 2309.7,
     "sub_tokens": 482,
-    "allergen_tokens": 474,
-    "synthesis_tokens": 474,
+    "allergen_tokens": 603,
+    "synthesis_tokens": 538,
     "sub_result": {
       "substitution_viable": true,
       "prompt_tokens": 246,
       "completion_tokens": 236,
       "total_tokens": 482,
-      "latency_ms": 704.25,
+      "latency_ms": 896.54,
       "raw_response": "{\n  \"substitution_viable\": true,\n  \"reasoning\": \"Adding chili powder to a basic tomato soup is a common, straightforward way to introduce heat. The recipe correctly incorporates the spice, and the resulting dish should be flavorful and palatable.\"\n}"
     },
     "allergen_result": {
-      "allergen_check_passed": true,
+      "allergen_check_passed": false,
       "recipe_integrity_passed": false,
-      "allergen_issues": "none",
+      "allergen_issues": "Allergen warning may be incomplete because vegetable broth can contain soy or gluten; additionally, chili powder is used in the method but not listed in the ingredients.",
       "prompt_tokens": 301,
-      "completion_tokens": 173,
-      "total_tokens": 474,
-      "latency_ms": 580.82,
-      "raw_response": "{\n  \"allergen_check_passed\": true,\n  \"recipe_integrity_passed\": false,\n  \"allergen_issues\": \"none\"\n}"
+      "completion_tokens": 302,
+      "total_tokens": 603,
+      "latency_ms": 787.51,
+      "raw_response": "{\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": false,\n  \"allergen_issues\": \"Allergen warning may be incomplete because vegetable broth can contain soy or gluten; additionally, chili powder is used in the method but not listed in the ingredients.\"\n}"
     },
     "synthesis_result": {
       "case_id": "case_24",
       "verdict": "Fail",
-      "synthesis_tokens": 474,
-      "synthesis_latency_ms": 617.79,
-      "raw_response": "{\"overall_verdict\":\"Fail\",\"reasoning\":\"Substitution viable, but recipe integrity failed, so overall fail.\"}"
+      "synthesis_tokens": 538,
+      "synthesis_latency_ms": 625.65,
+      "raw_response": "{\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"Substitution is viable, but allergen warnings are incomplete and recipe integrity is compromised.\"\n}"
     },
     "failure_injected": false,
     "orchestrator_behaviour": null,

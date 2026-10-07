@@ -24,8 +24,8 @@ Relevant log entries:
 ```
   orchestrator -> substitution_worker           | tok=  482
   orchestrator -> allergen_worker (FAILED — 500) | tok=    0 | ERROR: HTTP 500 Internal Server Error
-  orchestrator -> allergen_worker               | tok=  474
-  workers -> orchestrator_synthesis             | tok=  480
+  orchestrator -> allergen_worker               | tok=  724
+  workers -> orchestrator_synthesis             | tok=  567
 ```
 
 ## One-line Summary

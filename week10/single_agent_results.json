@@ -3,55 +3,55 @@
     "case_id": "case_01",
     "verdict": "Pass",
     "prompt_tokens": 423,
-    "completion_tokens": 318,
-    "total_tokens": 741,
-    "latency_ms": 1053.2,
-    "raw_response": "{\n  \"substitution_viable\": true,\n  \"allergen_check_passed\": true,\n  \"recipe_integrity_passed\": true,\n  \"overall_verdict\": \"Pass\",\n  \"reasoning\": \"Applesauce is a common lower\u2011fat substitute for butter in brownies, and the recipe correctly replaces butter with applesauce. The allergen warning accurately lists gluten from flour, with no other allergens present or falsely claimed. All ingredients used in the method are listed, and servings/quantities are properly formatted.\"\n}"
+    "completion_tokens": 368,
+    "total_tokens": 791,
+    "latency_ms": 2039.83,
+    "raw_response": "{\n  \"substitution_viable\": true,\n  \"allergen_check_passed\": true,\n  \"recipe_integrity_passed\": true,\n  \"overall_verdict\": \"Pass\",\n  \"reasoning\": \"Applesauce is a common lower\u2011fat substitute for butter in brownies, producing a moist but slightly denser result. The allergen warning correctly identifies gluten from flour and no other allergens are present. All ingredients used in the method are listed, and servings/quantities are properly formatted.\"\n}"
   },
   {
     "case_id": "case_03",
     "verdict": "Pass",
     "prompt_tokens": 423,
-    "completion_tokens": 344,
-    "total_tokens": 767,
-    "latency_ms": 889.15,
-    "raw_response": "{\n  \"substitution_viable\": true,\n  \"allergen_check_passed\": true,\n  \"recipe_integrity_passed\": true,\n  \"overall_verdict\": \"Pass\",\n  \"reasoning\": \"Applesauce is a common lower\u2011fat substitute for butter in brownies, and the recipe correctly replaces butter with applesauce. The allergen warning accurately lists gluten from flour and no other allergens are present. All ingredients used in the method are listed, and servings/quantities are properly formatted.\"\n}"
+    "completion_tokens": 316,
+    "total_tokens": 739,
+    "latency_ms": 1153.05,
+    "raw_response": "{\n  \"substitution_viable\": true,\n  \"allergen_check_passed\": true,\n  \"recipe_integrity_passed\": true,\n  \"overall_verdict\": \"Pass\",\n  \"reasoning\": \"Applesauce is a common lower\u2011fat substitute for butter in brownies, and the recipe correctly replaces butter with applesauce. The allergen warning accurately lists gluten from flour and no other allergens are present. All ingredients used in the method appear in the ingredient list, and servings/quantities are properly formatted.\"\n}"
   },
   {
     "case_id": "case_11",
     "verdict": "Fail",
     "prompt_tokens": 418,
-    "completion_tokens": 314,
-    "total_tokens": 732,
-    "latency_ms": 784.38,
-    "raw_response": "{\n  \"substitution_viable\": true,\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"The substitution of peanuts is culinarily viable and correctly applied, but the allergen warning is incorrect: peanuts (tree nuts) and butter (dairy) are present, yet the recipe states \\\"None\\\". This omission fails the allergen assessment.\"\n}"
+    "completion_tokens": 387,
+    "total_tokens": 805,
+    "latency_ms": 1611.24,
+    "raw_response": "{\n  \"substitution_viable\": false,\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"Peanuts were added as requested, but the recipe omitted eggs, which are essential for brownies, making the substitution incomplete. The allergen warning incorrectly states \\\"None\\\" despite the presence of peanuts, a tree nut allergen. The ingredient list and method are consistent, but the allergen and substitution issues cause the overall failure.\"\n}"
   },
   {
     "case_id": "case_14",
     "verdict": "Fail",
     "prompt_tokens": 418,
-    "completion_tokens": 353,
-    "total_tokens": 771,
-    "latency_ms": 850.34,
-    "raw_response": "{\n  \"substitution_viable\": true,\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"The substitution of peanuts is culinarily viable and correctly applied, but the allergen warning is incorrect: peanuts are tree nuts and the recipe also contains dairy (butter) and gluten (flour). The warning should list tree nuts, dairy, and gluten.\"\n}"
+    "completion_tokens": 457,
+    "total_tokens": 875,
+    "latency_ms": 1761.13,
+    "raw_response": "{\n  \"substitution_viable\": true,\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"Peanuts are a viable addition, but the allergen warning incorrectly states \\\"None\\\" despite peanuts being present. This violates allergen labeling requirements.\"\n}"
   },
   {
     "case_id": "case_16",
     "verdict": "Fail",
     "prompt_tokens": 417,
-    "completion_tokens": 506,
-    "total_tokens": 923,
-    "latency_ms": 896.52,
-    "raw_response": "{\n  \"substitution_viable\": false,\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"The ketchup substitution is not a palatable or typical replacement for milk in a vanilla cake, and the allergen warning omits dairy (butter) while correctly listing gluten and eggs. The ingredient list and method are consistent, but the missing allergen warning causes the overall verdict to fail.\"\n}"
+    "completion_tokens": 517,
+    "total_tokens": 934,
+    "latency_ms": 1098.98,
+    "raw_response": "{\n  \"substitution_viable\": false,\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"The substitution of milk with ketchup is not culinarily viable or palatable for a cake, and the allergen warning is incomplete (missing dairy and potential soy). The ingredient list and method are consistent, but the overall recipe fails due to substitution and allergen issues.\"\n}"
   },
   {
     "case_id": "case_18",
     "verdict": "Fail",
     "prompt_tokens": 417,
-    "completion_tokens": 484,
-    "total_tokens": 901,
-    "latency_ms": 953.06,
-    "raw_response": "{\n  \"substitution_viable\": false,\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"The ketchup substitution is not a palatable or typical replacement for milk in a vanilla cake, and the allergen warning omitted dairy (butter) while correctly listing gluten and eggs.\"\n}"
+    "completion_tokens": 500,
+    "total_tokens": 917,
+    "latency_ms": 1069.73,
+    "raw_response": "{\n  \"substitution_viable\": false,\n  \"allergen_check_passed\": false,\n  \"recipe_integrity_passed\": true,\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"The substitution of milk with ketchup is not culinarily viable or palatable for a cake, and the allergen warning is incomplete (missing dairy and soy). The ingredient list and method are consistent, but the overall recipe fails due to substitution and allergen issues.\"\n}"
   },
   {
     "case_id": "case_19",
@@ -59,26 +59,26 @@
     "prompt_tokens": 408,
     "completion_tokens": 284,
     "total_tokens": 692,
-    "latency_ms": 459.13,
+    "latency_ms": 783.17,
     "raw_response": "{\n  \"substitution_viable\": false,\n  \"allergen_check_passed\": true,\n  \"recipe_integrity_passed\": true,\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"Replacing sugar with salt is not a palatable or culinary substitution; the resulting pancakes would be overly salty and lacking sweetness. The recipe correctly lists allergens present, and all ingredients used in the method appear in the ingredient list, but the substitution itself is not viable.\"\n}"
   },
   {
     "case_id": "case_22",
     "verdict": "Fail",
     "prompt_tokens": 397,
-    "completion_tokens": 259,
-    "total_tokens": 656,
-    "latency_ms": 705.24,
-    "raw_response": "{\n  \"substitution_viable\": true,\n  \"allergen_check_passed\": true,\n  \"recipe_integrity_passed\": false,\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"The substitution to make the soup spicy is correctly applied by adding chili powder, but the ingredient list omits chili powder, violating recipe integrity.\"\n}"
+    "completion_tokens": 303,
+    "total_tokens": 700,
+    "latency_ms": 1195.33,
+    "raw_response": "{\n  \"substitution_viable\": true,\n  \"allergen_check_passed\": true,\n  \"recipe_integrity_passed\": false,\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"The substitution to make the soup spicy is viable and correctly applied by adding chili powder. Allergen warnings are accurate\u2014no common allergens are present. However, the recipe integrity fails because chili powder is used in the method but omitted from the ingredient list, and its quantity is not specified.\"\n}"
   },
   {
     "case_id": "case_24",
     "verdict": "Fail",
     "prompt_tokens": 397,
-    "completion_tokens": 277,
-    "total_tokens": 674,
-    "latency_ms": 704.39,
-    "raw_response": "{\n  \"substitution_viable\": true,\n  \"allergen_check_passed\": true,\n  \"recipe_integrity_passed\": false,\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"The substitution to make the soup spicy is viable and correctly applied by adding chili powder. Allergen warnings are accurate. However, the ingredient list omits chili powder, which is used in the method, so the recipe integrity check fails.\"\n}"
+    "completion_tokens": 259,
+    "total_tokens": 656,
+    "latency_ms": 580.37,
+    "raw_response": "{\n  \"substitution_viable\": true,\n  \"allergen_check_passed\": true,\n  \"recipe_integrity_passed\": false,\n  \"overall_verdict\": \"Fail\",\n  \"reasoning\": \"The substitution to make the soup spicy is correctly applied by adding chili powder, but the ingredient list omits chili powder, violating recipe integrity.\"\n}"
   },
   {
     "case_id": "case_26",
