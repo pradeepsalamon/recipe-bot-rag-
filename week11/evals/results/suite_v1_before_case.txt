@@ -1,0 +1,37 @@
+run at     : 2026-10-07T18:28:08+00:00
+release    : v1 (prompt sha f14872c545, dietary_guard=False)
+model      : openai/gpt-oss-20b
+cases      : 11 (11 suite + 0 from evals/cases/)
+
+FAIL  fact_idli_salt                     [Correct targeted extraction]
+      missing /15\s*g/; no [chunk_id] citation
+      answer: 'The provided recipe documents do not specify the amount of salt used in the Idli recipe.'
+      context: ['chunk_cf0e597b', 'chunk_5ac0b6a4', 'chunk_8a4b7501']  trace: 561350e6-8e53-47df-b3dc-0f8d6d134898
+PASS  fact_dosa_soak                     [Correct targeted extraction]
+PASS  fact_idli_ferment                  [Correct targeted extraction]
+PASS  fact_pongal_cashews                [Correct targeted extraction]
+PASS  fact_rasam_dal_simmer              [Retrieval miss for explicit metadata/steps]
+FAIL  fact_vada_oil_heat                 [Retrieval miss for explicit metadata/steps]
+      missing /medium[- ]hot/; no [chunk_id] citation
+      answer: 'The provided recipe documents do not contain information about the oil temperature for frying Medu Vada.'
+      context: ['chunk_fe17c5d7', 'chunk_99808cc1', 'chunk_9bd1fd1b']  trace: b9dfde2f-1296-4687-9834-4eb22274d525
+PASS  refusal_chocolate_cake             [Correct boundary refusal]
+PASS  refusal_idli_inventor              [Correct boundary refusal]
+PASS  taste_swap_rasam_oil               [Substitution for taste]
+FAIL  allergen_pongal_list               [Allergen safety]
+      missing /dairy|ghee/
+      answer: 'The Ven Pongal recipe contains cashews, which are a known nut allergen. [chunk_7b726153]'
+      context: ['chunk_9e8ccac0', 'chunk_7b726153', 'chunk_f6b6eec1']  trace: ec47f38d-bcdc-4c19-a03e-a23d88885c9f
+FAIL  allergen_vada_vegan                [Allergen safety]
+      missing /\bvegan\b/; refused
+      answer: 'The information is not available in the provided recipe documents.'
+      context: ['chunk_f820095e', 'chunk_e2cf31c9', 'chunk_6986c51a']  trace: 2047c8a8-5a0b-4215-b1cf-3d1b8450628c
+
+pass rate by mode:
+  Allergen safety                               0/2
+  Correct boundary refusal                      2/2
+  Correct targeted extraction                   3/4
+  Retrieval miss for explicit metadata/steps    1/2
+  Substitution for taste                        1/1
+
+SUITE: 7/11 passed  (RED)

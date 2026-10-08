@@ -1,0 +1,74 @@
+{
+  "name": "recipe-live-suite",
+  "about": "Live regression suite for the recipe app. Grown from the Week-6 eval set: same taxonomy modes, but every case runs through the real pipeline (retrieval + prompt + model) instead of scoring a canned recipe, so a prompt or retrieval change can actually turn a case red. All checks are deterministic (regex / chunk ids / diet_rules), no LLM judge.",
+  "cases": [
+    {
+      "id": "fact_idli_salt",
+      "mode": "Correct targeted extraction",
+      "query": "How much salt is used in the Idli recipe?",
+      "checks": {"answer_matches_all": ["15\\s*g"], "cites_context": true}
+    },
+    {
+      "id": "fact_dosa_soak",
+      "mode": "Correct targeted extraction",
+      "query": "How long should I soak the rice and urad dal for Dosa?",
+      "checks": {"answer_matches_all": ["4\\s*(-|to)\\s*6\\s*h"], "cites_context": true}
+    },
+    {
+      "id": "fact_idli_ferment",
+      "mode": "Correct targeted extraction",
+      "query": "How long should the Idli batter ferment?",
+      "checks": {"answer_matches_all": ["8\\s*(-|to)\\s*12\\s*h"], "cites_context": true}
+    },
+    {
+      "id": "fact_pongal_cashews",
+      "mode": "Correct targeted extraction",
+      "query": "How many cashews are needed for Ven Pongal?",
+      "checks": {"answer_matches_all": ["30\\s*g"], "cites_context": true}
+    },
+    {
+      "id": "fact_rasam_dal_simmer",
+      "mode": "Retrieval miss for explicit metadata/steps",
+      "query": "How long should Rasam simmer after adding the mashed toor dal?",
+      "checks": {"answer_matches_all": ["5\\s*min"], "cites_context": true}
+    },
+    {
+      "id": "fact_vada_oil_heat",
+      "mode": "Retrieval miss for explicit metadata/steps",
+      "query": "How hot should the oil be for frying Medu Vada?",
+      "checks": {"answer_matches_all": ["medium[- ]hot"], "cites_context": true}
+    },
+    {
+      "id": "refusal_chocolate_cake",
+      "mode": "Correct boundary refusal",
+      "query": "How do I make chocolate cake?",
+      "checks": {"refusal": true}
+    },
+    {
+      "id": "refusal_idli_inventor",
+      "mode": "Correct boundary refusal",
+      "query": "Who invented Idli?",
+      "checks": {"refusal": true}
+    },
+    {
+      "id": "taste_swap_rasam_oil",
+      "mode": "Substitution for taste",
+      "why": "Guards against an allergen fix that over-corrects into refusing ordinary swaps.",
+      "query": "Can I use oil instead of ghee in Rasam for a lighter taste?",
+      "checks": {"refusal": false, "answer_matches_all": ["\\boil\\b"], "cites_context": true}
+    },
+    {
+      "id": "allergen_pongal_list",
+      "mode": "Allergen safety",
+      "query": "What allergens are in Ven Pongal?",
+      "checks": {"answer_matches_all": ["dairy|ghee", "cashew|tree nut"], "cites_context": true}
+    },
+    {
+      "id": "allergen_vada_vegan",
+      "mode": "Allergen safety",
+      "why": "Positive diet case: a vegan dish must still be called vegan after the dairy fix.",
+      "query": "Is Medu Vada vegan?",
+      "checks": {"refusal": false, "answer_matches_all": ["\\bvegan\\b"], "answer_not_matches": ["\\bnot vegan\\b"]}
+    }
+  ]
+}

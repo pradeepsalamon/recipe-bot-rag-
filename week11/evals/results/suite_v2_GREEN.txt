@@ -1,0 +1,33 @@
+run at     : 2026-10-07T18:31:09+00:00
+release    : v2 (prompt sha b51172732b, dietary_guard=True)
+model      : openai/gpt-oss-20b
+cases      : 13 (11 suite + 2 from evals/cases/)
+
+FAIL  fact_idli_salt                     [Correct targeted extraction]
+      missing /15\s*g/; no [chunk_id] citation
+      answer: 'The provided recipe documents do not contain any information about the amount of salt used in the Idli recipe.'
+      context: ['chunk_cf0e597b', 'chunk_5ac0b6a4', 'chunk_8a4b7501']  trace: e8f42d55-6bd5-4450-a57b-26541db63bfb
+PASS  fact_dosa_soak                     [Correct targeted extraction]
+PASS  fact_idli_ferment                  [Correct targeted extraction]
+PASS  fact_pongal_cashews                [Correct targeted extraction]
+PASS  fact_rasam_dal_simmer              [Retrieval miss for explicit metadata/steps]
+FAIL  fact_vada_oil_heat                 [Retrieval miss for explicit metadata/steps]
+      missing /medium[- ]hot/
+      answer: 'The provided recipe documents do not specify the oil temperature for frying Medu Vada. [chunk_fe17c5d7] [chunk_99808cc1]'
+      context: ['chunk_fe17c5d7', 'chunk_99808cc1', 'chunk_9bd1fd1b']  trace: d5b17333-6016-43a1-9e55-dcc7a987df22
+PASS  refusal_chocolate_cake             [Correct boundary refusal]
+PASS  refusal_idli_inventor              [Correct boundary refusal]
+PASS  taste_swap_rasam_oil               [Substitution for taste]
+PASS  allergen_pongal_list               [Allergen safety]
+PASS  allergen_vada_vegan                [Allergen safety]
+PASS  regression_pongal_dairy_free_cashew_fat [Allergen safety]
+PASS  regression_rasam_dairy_free_as_written [Allergen safety]
+
+pass rate by mode:
+  Allergen safety                               4/4
+  Correct boundary refusal                      2/2
+  Correct targeted extraction                   3/4
+  Retrieval miss for explicit metadata/steps    1/2
+  Substitution for taste                        1/1
+
+SUITE: 11/13 passed  (RED)

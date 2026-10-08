@@ -1,0 +1,137 @@
+{
+  "trace_id": "d125333e-1309-4adf-a43c-5eea52988a25",
+  "ts": "2026-10-01T02:39:01+00:00",
+  "logged_at": "2026-10-07T18:35:17+00:00",
+  "log_schema": 1,
+  "source": "simulated_traffic",
+  "user_id": "u4111",
+  "session_id": "s_51a1606e",
+  "input_type": "dietary_swap",
+  "prompt_version": "v1",
+  "prompt_sha": "f14872c545",
+  "dietary_guard": false,
+  "model": "openai/gpt-oss-20b",
+  "fallback_used": false,
+  "query": "I'm cooking Ven Pongal for a dairy-free guest. What can I fry the cashews in instead of butter?",
+  "answer": "Use ghee to fry the cashews. [chunk_0df1a3f4]",
+  "recipe_ids": [
+    "ven_pongal"
+  ],
+  "retrieved_context_ids": [
+    "chunk_0df1a3f4",
+    "chunk_f97ed4c6",
+    "chunk_9f569565"
+  ],
+  "tool_context_ids": [],
+  "spans": [
+    {
+      "name": "retrieval.embed",
+      "stage": "retrieval",
+      "latency_ms": 10.8,
+      "model": "all-MiniLM-L6-v2",
+      "tokens_in": 31,
+      "tokens_out": 0,
+      "cost_usd": 0.0,
+      "attrs": {},
+      "error": null
+    },
+    {
+      "name": "retrieval.dense",
+      "stage": "retrieval",
+      "latency_ms": 2.4,
+      "model": null,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cost_usd": 0.0,
+      "attrs": {
+        "pool_k": 20
+      },
+      "error": null
+    },
+    {
+      "name": "retrieval.bm25",
+      "stage": "retrieval",
+      "latency_ms": 0.4,
+      "model": null,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cost_usd": 0.0,
+      "attrs": {
+        "pool_k": 20
+      },
+      "error": null
+    },
+    {
+      "name": "retrieval.rrf_fuse",
+      "stage": "retrieval",
+      "latency_ms": 0.0,
+      "model": null,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cost_usd": 0.0,
+      "attrs": {
+        "context_ids": [
+          "chunk_0df1a3f4",
+          "chunk_f97ed4c6",
+          "chunk_9f569565"
+        ],
+        "rrf_scores": [
+          0.03279,
+          0.03226,
+          0.02988
+        ]
+      },
+      "error": null
+    },
+    {
+      "name": "generation.llm",
+      "stage": "generation",
+      "latency_ms": 817.4,
+      "model": "openai/gpt-oss-20b",
+      "tokens_in": 430,
+      "tokens_out": 166,
+      "cost_usd": 8.205e-05,
+      "attrs": {
+        "provider": "groq",
+        "reasoning_tokens": 137,
+        "queue_ms": 315.1,
+        "ratelimit_limit_tokens_per_min": "8000",
+        "ratelimit_remaining_tokens": "6772",
+        "ratelimit_limit_requests_per_day": "1000",
+        "ratelimit_remaining_requests": "819"
+      },
+      "error": null
+    }
+  ],
+  "cost_by_stage": {
+    "retrieval": {
+      "calls": 4,
+      "latency_ms": 13.6,
+      "tokens_in": 31,
+      "tokens_out": 0,
+      "cost_usd": 0
+    },
+    "tools": {
+      "calls": 0,
+      "latency_ms": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "cost_usd": 0
+    },
+    "generation": {
+      "calls": 1,
+      "latency_ms": 817.4,
+      "tokens_in": 430,
+      "tokens_out": 166,
+      "cost_usd": 8.205e-05
+    }
+  },
+  "totals": {
+    "latency_ms": 831.2,
+    "tokens_in": 461,
+    "tokens_out": 166,
+    "cost_usd": 8.205e-05
+  },
+  "status": "ok",
+  "error": null
+}

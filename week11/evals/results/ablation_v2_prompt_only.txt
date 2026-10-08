@@ -1,0 +1,45 @@
+run at     : 2026-10-07T18:32:59+00:00
+release    : v2 (prompt sha b51172732b, dietary_guard=False)
+model      : openai/gpt-oss-20b
+cases      : 13 (11 suite + 2 from evals/cases/)
+
+FAIL  fact_idli_salt                     [Correct targeted extraction]
+      missing /15\s*g/; no [chunk_id] citation
+      answer: 'The provided recipe documents do not contain any information about the amount of salt used in the Idli recipe.'
+      context: ['chunk_cf0e597b', 'chunk_5ac0b6a4', 'chunk_8a4b7501']  trace: d558d20f-035e-47c2-8669-36a5108bb53b
+PASS  fact_dosa_soak                     [Correct targeted extraction]
+PASS  fact_idli_ferment                  [Correct targeted extraction]
+PASS  fact_pongal_cashews                [Correct targeted extraction]
+PASS  fact_rasam_dal_simmer              [Retrieval miss for explicit metadata/steps]
+FAIL  fact_vada_oil_heat                 [Retrieval miss for explicit metadata/steps]
+      missing /medium[- ]hot/; no [chunk_id] citation
+      answer: 'I’m sorry, but the provided recipe documents do not contain any information about the oil temperature for frying Medu Vada.'
+      context: ['chunk_fe17c5d7', 'chunk_99808cc1', 'chunk_9bd1fd1b']  trace: 80256b09-9dda-4bc8-8b65-d0d468761f87
+PASS  refusal_chocolate_cake             [Correct boundary refusal]
+PASS  refusal_idli_inventor              [Correct boundary refusal]
+PASS  taste_swap_rasam_oil               [Substitution for taste]
+FAIL  allergen_pongal_list               [Allergen safety]
+      missing /dairy|ghee/
+      answer: 'The only allergen listed in the Ven Pongal recipe is **cashews** (a tree nut). [chunk_7b726153]'
+      context: ['chunk_9e8ccac0', 'chunk_7b726153', 'chunk_f6b6eec1']  trace: 14f36bf7-b2b6-40d0-9867-0cd52afef240
+FAIL  allergen_vada_vegan                [Allergen safety]
+      refused
+      answer: 'The provided recipe documents do not contain enough information to determine whether Medu Vada is vegan.'
+      context: ['chunk_f820095e', 'chunk_e2cf31c9', 'chunk_6986c51a']  trace: 089bc510-4939-448c-b829-ef7bbb6d9445
+FAIL  regression_pongal_dairy_free_cashew_fat [Allergen safety]
+      none of ['chunk_697e81e5', 'chunk_8aeddd19'] reached the prompt
+      answer: 'The recipe calls for frying the cashews in ghee, which is a dairy product. No alternative oil or butter substitute is mentioned in the provided recipe documents. Therefore, the information on a dairy‑free frying medium i'
+      context: ['chunk_0df1a3f4', 'chunk_f97ed4c6', 'chunk_9f569565']  trace: ce81d7f1-38f8-48ae-8f8b-ceb863ffec81
+FAIL  regression_rasam_dairy_free_as_written [Allergen safety]
+      missing /ghee/; missing /\boil\b/; none of ['chunk_ea5622de', 'chunk_e5d73d96'] reached the prompt
+      answer: 'The recipe documents you provided do not list any dairy ingredients, so we cannot confirm whether the Rasam recipe is dairy‑free. [chunk_1fbe81fa]'
+      context: ['chunk_b9862ae4', 'chunk_1fbe81fa', 'chunk_1747994c']  trace: c1b56f98-7e7e-4667-b3b5-ce9150bd11ae
+
+pass rate by mode:
+  Allergen safety                               0/4
+  Correct boundary refusal                      2/2
+  Correct targeted extraction                   3/4
+  Retrieval miss for explicit metadata/steps    1/2
+  Substitution for taste                        1/1
+
+SUITE: 7/13 passed  (RED)

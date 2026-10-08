@@ -1,0 +1,10 @@
+{
+  "planted": [
+    {
+      "drill": 1,
+      "trace_sha256": "88f11a7c271bc9975f47a3efe0c5ae70e6d988f31e2d3d9224b6f5b51d7f2bfc",
+      "planted_at": "2026-10-07T18:35:17+00:00",
+      "log_schema_at_plant": 1
+    }
+  ]
+}
