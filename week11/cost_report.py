@@ -43,7 +43,10 @@ def cmd_stage(args):
            f"> {rec['query']}", "",
            "| Stage | Calls | Latency | Tokens in | Tokens out | Cost (USD) | Share of cost |",
            "|---|---|---|---|---|---|---|"]
-    for stage in STAGES:
+    # The cache stage only exists on records logged after the semantic cache
+    # was added; show it when this request actually went through it.
+    shown = (("cache",) if totals.get("cache", {}).get("calls") else ()) + STAGES
+    for stage in shown:
         t = totals[stage]
         out.append(f"| {stage} | {t['calls']} | {t['latency_ms']:.1f} ms | {t['tokens_in']} | "
                    f"{t['tokens_out']} | {usd(t['cost_usd'])} | {100 * t['cost_usd'] / total_cost:.1f}% |")
@@ -59,9 +62,12 @@ def cmd_stage(args):
     if g:
         price = config.PRICES[g["model"]]
         reasoning = g["attrs"].get("reasoning_tokens") or 0
+        cached = g.get("tokens_cached", 0)
+        fresh_line = (f"- {g['tokens_in'] - cached} input x ${price['input']}/1M + {cached} cached input x "
+                      f"${price['cached_input']}/1M + " if cached else
+                      f"- {g['tokens_in']} input x ${price['input']}/1M + ")
         out += ["", "How the generation number is made:", "",
-                f"- {g['tokens_in']} input x ${price['input']}/1M + {g['tokens_out']} output x "
-                f"${price['output']}/1M = {usd(g['cost_usd'])}",
+                fresh_line + f"{g['tokens_out']} output x ${price['output']}/1M = {usd(g['cost_usd'])}",
                 f"- {reasoning} of the {g['tokens_out']} output tokens are hidden reasoning tokens "
                 f"(gpt-oss thinks before it answers). They are billed as output, so they are "
                 f"{100 * reasoning * price['output'] / 1e6 / (g['cost_usd'] or 1e-12):.0f}% of this request's cost."]

@@ -166,6 +166,34 @@ over-correct into refusing everything.
 tokens and becomes 11,780 at 10x. Requests per day still have 43x headroom, and cost is about
 one cent per day. After v2 ships, the tokens-per-minute limit arrives at 4.0x instead of 6.8x.
 
+**Step 9 - Both kinds of caching** (`semantic_cache.py`, `cache_experiment.py`,
+`cache_report.md`).
+- *Semantic cache.* We measured before trusting it. MiniLM scores "sambar for **8** people"
+  vs "for **12** people" at **0.952**, higher than most real paraphrases. So a threshold alone
+  would serve wrong quantities. The cache uses a 0.88 threshold **plus** exact recipe and number
+  matching, never caches diet questions, never stores in-scope refusals, and is keyed on a
+  release fingerprint (version bump = automatic flush) with a 24 h TTL. Every guard has a test.
+  Replaying last week: 6/121 served from cache, **-4.4% cost**, **778 ms -> 10 ms** per hit,
+  0 unsafe hits. With a 7-day TTL it would be 16 hits (-11%), but answers get staler.
+- *Prompt cache (Groq).* Automatic: Groq caches the start of the prompt in 256-token blocks.
+  29% of calls got one block cached (the start of the system prompt): **-3.6% cost**. The old
+  v1 prompt was shorter than one block, so it could never be cached. Our first 4-call test
+  showed 0 hits; only the 122-call run showed the real picture. Small tests can mislead.
+- *Side finding.* The replay asked last week's exact questions again, so we could compare:
+  v1 refused 63% of them, v2.1 54%. The cheaper release did not get worse, but **coverage is
+  the app's biggest problem**, not cost.
+
+**Step 10 - LangSmith next to our own logs** (`langsmith_export.py`, `langsmith_vs_custom.md`).
+Every log record is mirrored into LangSmith with the **same id**, the same spans, tokens and
+cost (we hand LangSmith our own numbers). The LLM view shows the exact prompt, rebuilt from
+`prompt_version` + chunk ids. That proves the log is replayable. Things we learned:
+- LangSmith refuses runs that start more than 24 h from now. Old data keeps its real time
+  only in metadata and `date:` / `week:` tags.
+- No OR across tags in its filter language. Cost filters work on LLM runs, not on the root.
+- `input_type = dietary_swap` + full-text `dairy` finds the planted answer as the only result.
+- Our JSONL is still the source of truth: LangSmith is the nicer viewer, our log is what we
+  own, can search offline, and can back-date.
+
 ---
 
 ## Part 3 - Likely evaluation questions
@@ -177,7 +205,13 @@ one cent per day. After v2 ships, the tokens-per-minute limit arrives at 4.0x in
 - **"Could your fix have broken something else?"** The whole suite re-ran with pass counts.
   The same 2 old failures, no new ones, and the taste-swap and vegan cases still pass.
 - **"Which change fixed it?"** The ablation run: prompt alone 0/2, prompt + retrieval guard 2/2.
-- **"Why not semantic caching?"** It would cache the ghee answer and serve it instantly to
-  everyone asking something similar.
+- **"Why not semantic caching as the fix?"** It would cache the ghee answer and serve it
+  instantly to everyone asking something similar. Our cache exists, but never caches diet
+  questions, and a version bump flushes it.
+- **"Is your semantic cache safe?"** A threshold alone isn't ("sambar for 8" vs "for 12" =
+  0.952). Recipe + number guards, tests for each, and 0 unsafe hits when replaying a real week.
+- **"Why keep your own logs if you have LangSmith?"** LangSmith can't take back-dated data
+  (±24 h), can't OR across tags, and sends prompts to the cloud. Our log is the source of truth
+  and LangSmith is a mirror with a better viewer. Same trace id in both.
 - **"Why not fine-tune?"** A prompt rule plus one retrieval tool fixed it in an afternoon,
   and it is measurable and reversible.

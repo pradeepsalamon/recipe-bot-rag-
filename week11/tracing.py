@@ -17,32 +17,38 @@ from datetime import datetime, timezone
 import config
 
 
-def cost_usd(model, tokens_in, tokens_out):
+def cost_usd(model, tokens_in, tokens_out, tokens_cached=0):
+    """tokens_in includes any cached tokens; those are billed at the cached
+    price, the rest at the normal input price."""
     price = config.PRICES.get(model)
     if price is None:
         # Unknown model: log None rather than a fake 0, so it shows up as a
         # gap in the cost report instead of quietly looking free.
         return None
-    return (tokens_in * price["input"] + tokens_out * price["output"]) / 1_000_000
+    fresh = tokens_in - tokens_cached
+    return (fresh * price["input"] + tokens_cached * price["cached_input"]
+            + tokens_out * price["output"]) / 1_000_000
 
 
 class Span:
     def __init__(self, name, stage):
         self.name = name
-        self.stage = stage          # retrieval | tools | generation
+        self.stage = stage          # cache | retrieval | tools | generation
         self.latency_ms = 0.0
         self.model = None
         self.tokens_in = 0
+        self.tokens_cached = 0      # provider prompt-cache hits, part of tokens_in
         self.tokens_out = 0
         self.cost_usd = 0.0
         self.attrs = {}
         self.error = None
 
-    def set_usage(self, model, tokens_in, tokens_out):
+    def set_usage(self, model, tokens_in, tokens_out, tokens_cached=0):
         self.model = model
         self.tokens_in = tokens_in
+        self.tokens_cached = tokens_cached
         self.tokens_out = tokens_out
-        self.cost_usd = cost_usd(model, tokens_in, tokens_out)
+        self.cost_usd = cost_usd(model, tokens_in, tokens_out, tokens_cached)
 
     def to_dict(self):
         return {
@@ -51,6 +57,7 @@ class Span:
             "latency_ms": round(self.latency_ms, 1),
             "model": self.model,
             "tokens_in": self.tokens_in,
+            "tokens_cached": self.tokens_cached,
             "tokens_out": self.tokens_out,
             "cost_usd": self.cost_usd,
             "attrs": self.attrs,
@@ -86,15 +93,20 @@ class Trace:
         return (time.perf_counter() - self._t0) * 1000
 
 
+STAGES = ("cache", "retrieval", "tools", "generation")
+
+
 def stage_totals(spans):
-    """Roll span dicts up to the three stages the cost report uses."""
+    """Roll span dicts up to the stages the cost report uses."""
     totals = {}
-    for stage in ("retrieval", "tools", "generation"):
+    for stage in STAGES:
         mine = [s for s in spans if s["stage"] == stage]
         totals[stage] = {
             "calls": len(mine),
             "latency_ms": round(sum(s["latency_ms"] for s in mine), 1),
             "tokens_in": sum(s["tokens_in"] for s in mine),
+            # .get: records logged before prompt caching was tracked lack the key
+            "tokens_cached": sum(s.get("tokens_cached", 0) for s in mine),
             "tokens_out": sum(s["tokens_out"] for s in mine),
             "cost_usd": sum(s["cost_usd"] or 0 for s in mine),
         }

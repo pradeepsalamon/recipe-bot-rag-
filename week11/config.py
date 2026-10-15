@@ -31,10 +31,15 @@ FALLBACK_MODEL = "gemini-3.6-flash"
 # cloudprice.net and pricepertoken.com). Gemini price is the intro rate that
 # runs until 2026-12-31. If prices change, update here; every cost in the
 # logs is computed from this table at request time.
+#
+# cached_input = the provider's prompt-caching price (a prefix it has seen
+# recently). Groq: 50% off on gpt-oss (Groq blog / docs). Gemini 3.6 Flash
+# implicit cache: $0.075. Only applied when the API response actually reports
+# cached tokens; we never assume a hit.
 PRICES = {
-    "openai/gpt-oss-20b": {"input": 0.075, "output": 0.30},
-    "gemini-3.6-flash": {"input": 0.75, "output": 3.75},
-    EMBED_MODEL: {"input": 0.0, "output": 0.0},
+    "openai/gpt-oss-20b": {"input": 0.075, "cached_input": 0.0375, "output": 0.30},
+    "gemini-3.6-flash": {"input": 0.75, "cached_input": 0.075, "output": 3.75},
+    EMBED_MODEL: {"input": 0.0, "cached_input": 0.0, "output": 0.0},
 }
 
 # Groq free-tier limits for gpt-oss-20b, as returned in the
@@ -61,6 +66,32 @@ RELEASES = {
 STABLE_RELEASE = "v1"
 CANARY_RELEASE = "v2"
 CANARY_PERCENT = 0
+
+# Semantic cache (our side, see semantic_cache.py for why each rule exists).
+# Off in production until it has been through a canary like any release.
+SEMANTIC_CACHE = {
+    "enabled": False,
+    "threshold": 0.88,
+    "ttl_hours": 24,
+    "skip_input_types": ["dietary", "dietary_swap"],
+    "path": WEEK_DIR / "cache" / "semantic_cache.jsonl",
+}
+
+# LangSmith mirror (langsmith_export.py). Only sends anything when
+# LANGSMITH_API_KEY is in .env. Our JSONL log stays the source of truth;
+# LangSmith gets a copy of each record, split into projects by source so
+# eval and experiment traffic never mixes with "production".
+LANGSMITH = {
+    "enabled": True,
+    "projects": {
+        "default": "recipe-rag-prod",
+        "live": "recipe-rag-prod",
+        "simulated_traffic": "recipe-rag-prod",
+        "eval": "recipe-rag-evals",
+        "cache_experiment": "recipe-rag-cache-experiment",
+        "cache_probe": "recipe-rag-cache-experiment",
+    },
+}
 
 # Log schema version.
 #   1 = what was live for the first support drill.

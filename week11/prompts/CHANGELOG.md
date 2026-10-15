@@ -44,9 +44,11 @@ They're left for a separate release so this one changes one thing.
 **Canary:** set `CANARY_PERCENT = 10` (users sticky-hashed onto v2) for 48 h; promote v2 to `STABLE_RELEASE` only if `logq.py find --prompt-version v2 --flag dairy_violation` stays empty, the suite holds 11/13 with Allergen safety 4/4, and p95 latency stays within +20%.
 **Rollback:** set `CANARY_PERCENT = 0` (one line in `config.py`, everyone is back on v1 on the next request) the moment a v2 trace is flagged `dairy_violation`, the suite drops below 11/13, or diet-question cost per query more than doubles.
 
-Not done on purpose: semantic caching. Caching the v1 answer to "dairy-free fat for the
-cashews?" would have served the ghee answer instantly to every near-identical question.
-Any cache gets keyed on `prompt_version` and flushed on a version bump.
+Not used as the fix on purpose: semantic caching. Caching the v1 answer to "dairy-free fat
+for the cashews?" would have served the ghee answer instantly to every near-identical
+question. The semantic cache added later (`semantic_cache.py`, see `cache_report.md`) never
+caches diet questions and is keyed on a release fingerprint (prompt sha + retrieval settings
++ model + corpus), so this version bump flushes it automatically.
 
 ## v1 - week 3 (sha `f14872c545`)
 

@@ -110,8 +110,9 @@ def main():
     by_mode = defaultdict(lambda: [0, 0])
     passed = 0
     for case in cases:
+        # use_cache=False: the suite must test the model, never a stored answer.
         rec = pipeline.answer(case["query"], user_id="eval", release=args.release,
-                              source="eval", log_path=config.EVAL_LOG_FILE,
+                              source="eval", log_path=config.EVAL_LOG_FILE, use_cache=False,
                               dietary_guard_override=False if args.no_guard else None)
         fails = check(case, rec)
         ok = not fails

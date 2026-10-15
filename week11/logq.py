@@ -9,6 +9,7 @@ Slices (combine as many as you like):
     --cost-top 10 / --latency-top 10    cost / latency outliers
     --text dairy --in answer            free text, in the query, the answer, or both
     --flag dairy_violation              answer-side index (log schema 2 only)
+    --cache-hit                         answers served from the semantic cache
 
 Examples:
     python logq.py find --since 7d --input-type dietary_swap --text dairy
@@ -61,6 +62,8 @@ def slices_used(args):
         used.append(f"text({args.where})")
     if args.flag:
         used.append(f"output_index({args.flag})")
+    if args.cache_hit:
+        used.append("cache_hit")
     return used
 
 
@@ -90,6 +93,8 @@ def find(records, args):
             sys.exit(f"{len(missing)} records have no output_tags (log schema 1). "
                      f"Run `python logq.py reindex` first.")
         hits = [r for r in hits if r["output_tags"].get(args.flag)]
+    if args.cache_hit:
+        hits = [r for r in hits if (r.get("cache") or {}).get("hit")]
     if args.cost_top:
         hits = sorted(hits, key=lambda r: r["totals"]["cost_usd"], reverse=True)[:args.cost_top]
     if args.latency_top:
@@ -103,6 +108,10 @@ def print_rows(hits, full=False):
         answer = (r.get("answer") or f"[{r['status']}] {r.get('error')}").replace("\n", " ")
         if not full:
             answer = answer[:110]
+        cache = r.get("cache") or {}
+        if cache.get("hit"):
+            # A cached answer was produced by an earlier request - say which.
+            answer = f"[semantic cache <- {cache['source_trace_id'][:8]}] {answer}"
         print(f"{ts}  {r['trace_id'][:8]}  {r['user_id']:<6} {r['input_type']:<13} "
               f"{r['prompt_version']}  ${r['totals']['cost_usd']:.6f} {r['totals']['latency_ms']:>7.0f}ms")
         print(f"    Q: {r['query']}")
@@ -159,6 +168,12 @@ def cmd_stats(args):
     print("prompt:      ", dict(Counter(r["prompt_version"] for r in records)))
     print("status:      ", dict(Counter(r["status"] for r in records)))
     print("fallbacks:   ", sum(r["fallback_used"] for r in records))
+    cache_on = [r for r in records if (r.get("cache") or {}).get("enabled")]
+    if cache_on:
+        hits = sum(r["cache"]["hit"] for r in cache_on)
+        print(f"sem. cache:   {hits}/{len(cache_on)} served from cache ({100 * hits / len(cache_on):.0f}%)")
+    cached_tokens = sum(r["totals"].get("tokens_cached", 0) for r in records)
+    print(f"prompt cache: {cached_tokens} input tokens reported cached by the provider")
     costs = sorted(r["totals"]["cost_usd"] for r in records)
     lat = sorted(r["totals"]["latency_ms"] for r in records)
     pct = lambda xs, p: xs[min(len(xs) - 1, int(p * len(xs)))]
@@ -197,6 +212,7 @@ def main():
     f.add_argument("--flag", help="output_tags key, e.g. dairy_violation (schema 2)")
     f.add_argument("--cost-top", type=int)
     f.add_argument("--latency-top", type=int)
+    f.add_argument("--cache-hit", action="store_true", help="only answers served from the semantic cache")
     f.add_argument("--limit", type=int, default=40)
     f.add_argument("--full", action="store_true", help="print whole answers")
     f.set_defaults(func=cmd_find)

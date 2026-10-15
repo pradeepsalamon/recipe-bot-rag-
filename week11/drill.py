@@ -84,7 +84,7 @@ def cmd_plant(args):
         ts = first + (last - first) * rng.random()
         rec = pipeline.answer(question, user_id=rng.choice(users), release="v1",
                               ts=ts.replace(microsecond=0), source="simulated_traffic",
-                              log_path=False)
+                              log_path=False, use_cache=False)  # a real model answer, never a cached one
         reason = diet_rules.dairy_violation(question, rec["answer"] or "")
         if reason:
             break
@@ -93,6 +93,9 @@ def cmd_plant(args):
         sys.exit("v1 gave safe answers to every phrasing this time - nothing planted. Run again.")
 
     write_logs(records + [rec])
+    # Also hide it in LangSmith, so the drill can be run in either tool.
+    import langsmith_export
+    langsmith_export.export_safe(rec)
     state = load_state()
     state["planted"].append({
         "drill": len(state["planted"]) + 1,
@@ -241,6 +244,8 @@ def cmd_reset(args):
         if path.exists():
             path.unlink()
     print(f"removed {len(records) - len(kept)} planted record(s) and the drill results")
+    print("LangSmith still has the old plant - run `python langsmith_export.py rebuild` "
+          "so both tools hold the same requests.")
 
 
 def main():

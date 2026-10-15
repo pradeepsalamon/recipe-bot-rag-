@@ -95,7 +95,7 @@ DISH_CALLED_FREE = re.compile(
 
 REFUSAL = re.compile(
     r"(information|details?) (is|are) not available|not available in the provided|"
-    r"(documents|context) do(es)? not (contain|include|provide|mention|have)|"
+    r"(documents|context) do(es)? not (contain|include|provide|mention|have|specify|state|list)|"
     r"no information|i('m| am) sorry|cannot answer|can't answer"
 )
 

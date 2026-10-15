@@ -17,6 +17,8 @@ cost is measured per stage, and a real failure became a permanent eval case.
 | Prompt version bump + canary / rollback plan | [prompts/CHANGELOG.md](prompts/CHANGELOG.md) |
 | Cost per query by stage | [cost_by_stage.md](cost_by_stage.md) |
 | What breaks first at 10x | [tenx.md](tenx.md) |
+| Caching (semantic + prompt), measured | [cache_report.md](cache_report.md) |
+| Custom logs vs LangSmith | [langsmith_vs_custom.md](langsmith_vs_custom.md) |
 
 ## Results at a glance
 
@@ -33,6 +35,10 @@ cost is measured per stage, and a real failure became a permanent eval case.
 | Fix cost, fleet-wide | +46% per query (diet questions carry the ingredient list) | `cost_by_stage.md` |
 | Cost improvement (v2 -> v2.1, `reasoning_effort=low`) | **-26%** per query, suite unchanged | `cost_improvement.md` |
 | 10x | Groq 8,000 TPM breaks first: busiest minute 1,178 -> 11,780 tokens | `tenx.md` |
+| Semantic cache (replay of the week, 24 h TTL) | 6/121 served from cache, -4.4% cost, 778 ms -> 10 ms per hit, 0 unsafe hits | `cache_report.md` |
+| Prompt cache (Groq, automatic) | 29% of calls had 256 tokens cached, -3.6% cost | `cache_report.md` |
+| Side finding | v1 refused 63% of real questions, v2.1 54%: coverage, not cost, is the next fix | `cache_report.md` |
+| LangSmith mirror | 121 traces in `recipe-rag-prod`, same ids / latencies / tokens / cost as our log | `langsmith_vs_custom.md` |
 
 Honest notes:
 - Request *times* in the log are simulated (spread over last week, `source: simulated_traffic`,
@@ -46,6 +52,7 @@ Honest notes:
 
 ```bash
 python drill.py reset          # removes the rehearsal plant + rehearsal drill.md
+python langsmith_export.py rebuild   # LangSmith copy back in sync (planted answers go to both tools)
 # squadmate, at your keyboard, you look away:
 python drill.py plant          # prints the vague complaint (+ the answer key, for them only)
 python drill.py start --finder "<your name>" --timer "<squadmate name>"
@@ -79,7 +86,11 @@ python drill.py found <trace_id>   # drill.md now shows both times + the field t
 | `drill.py` | The timed drill: `plant`, `start`, `found`, `report`, `reset` |
 | `evals/run_suite.py` | Runs suite + new cases against a release, prints pass counts by mode |
 | `evals/test_diet_rules.py` | Tests for the dairy checker itself |
-| `cost_report.py` | `stage <trace>` -> cost_by_stage.md, `tenx` -> tenx.md |
+| `cost_report.py` | `stage <trace>` -> cost_by_stage.md, `tenx` -> tenx.md, `compare v2 v2.1` -> cost_improvement.md |
+| `semantic_cache.py` | Our semantic cache: similarity + recipe/number guards, never diet questions, release fingerprint, TTL |
+| `cache_experiment.py` | Replays last week's traffic with the cache on, probes it, measures prompt caching -> cache_report.md |
+| `langsmith_export.py` | Mirrors each log record into LangSmith (same run id, spans, tokens, cost); `check`, `backfill`, `rebuild` |
+| `evals/test_semantic_cache.py` | Tests every cache guard with real question pairs (incl. "sambar for 8" vs "for 12") |
 
 ## Full run order from scratch (from this folder)
 
@@ -107,6 +118,10 @@ python evals/run_suite.py --release v2 --no-guard --out evals/results/ablation_v
 python evals/run_suite.py --release v2.1 --out evals/results/suite_v2.1_cost_experiment.txt
 python cost_report.py compare v2 v2.1
 python cost_report.py tenx
+
+# 4b. caching: test the guards, then measure on real traffic
+python evals/test_semantic_cache.py
+python cache_experiment.py run
 
 # 5. bonus: add the missing index, plant again, beat the time
 python logq.py reindex           # and set LOG_SCHEMA = 2 in config.py
