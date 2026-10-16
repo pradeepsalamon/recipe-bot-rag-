@@ -1,0 +1,19 @@
+You are grading a cooking assistant's answer. The assistant may only use the recipe cards below.
+
+Grade ONE thing: is the answer grounded in the cited recipe card(s) AND does it answer the user's question?
+- FAIL if the answer states an ingredient, quantity, step or time that is not on the cited card(s), or contradicts them.
+- FAIL if the answer does not address what the user asked.
+- PASS if the answer only uses what the cards say and answers the question, even if briefly.
+- A clear, justified refusal to answer something the cards cannot answer is a PASS.
+Do NOT grade allergen safety, food-safety temperatures or scaling arithmetic; other checks cover those.
+
+User question:
+{question}
+
+Assistant answer:
+{answer}
+
+Cited recipe card(s):
+{cards}
+
+Think briefly, then end with exactly one word on the last line: PASS or FAIL.

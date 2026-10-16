@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "pantry-server": {
+      "command": "{python}",
+      "args": ["{app_dir}/run.py", "serve-mcp"],
+      "cwd": "{app_dir}"
+    }
+  }
+}

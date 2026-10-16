@@ -1,0 +1,11 @@
+{
+  "_about": "Food-safety chart: minimum safe internal temperatures, measured with a probe thermometer in the thickest part. Values are the USDA FSIS safe minimum internal temperature chart converted to Celsius (165°F = 74°C, 160°F = 71°C, 145°F = 63°C). These are the numbers the assistant must state; 'cooked through', 'juices run clear' or 'golden' are never a substitute.",
+  "categories": [
+    {"category": "poultry", "matches": ["chicken", "turkey", "duck", "poultry", "goose"], "safe_internal_c": 74, "rest_minutes": 0, "note": "Whole birds: check the thickest part of the thigh, not touching bone."},
+    {"category": "ground_meat", "matches": ["minced beef", "ground beef", "mince", "burger", "minced pork", "ground pork", "minced lamb", "sausage", "meatball"], "safe_internal_c": 71, "rest_minutes": 0, "note": "Grinding spreads surface bacteria through the meat, so mince needs a higher temperature than whole cuts."},
+    {"category": "whole_cuts", "matches": ["steak", "beef roast", "pork chop", "pork loin", "lamb chop", "leg of lamb", "veal"], "safe_internal_c": 63, "rest_minutes": 3, "note": "Rest at least 3 minutes before carving."},
+    {"category": "fish", "matches": ["fish", "salmon", "cod", "tuna", "haddock", "shellfish", "prawn", "shrimp"], "safe_internal_c": 63, "rest_minutes": 0, "note": "Or until the flesh is opaque and flakes easily."},
+    {"category": "egg_dishes", "matches": ["egg dish", "frittata", "quiche", "custard", "omelette"], "safe_internal_c": 71, "rest_minutes": 0, "note": ""},
+    {"category": "leftovers", "matches": ["leftover", "reheat", "casserole"], "safe_internal_c": 74, "rest_minutes": 0, "note": "Reheat once only."}
+  ]
+}

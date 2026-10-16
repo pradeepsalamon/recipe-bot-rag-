@@ -1,0 +1,102 @@
+{
+  "_about": "Test-kitchen substitutions table. Seeded from week7/tools.py SUBSTITUTION_DB, extended with the swaps a real test kitchen lists. Every substitute carries ITS OWN allergen declaration, because a swap that removes one allergen can add another (almond flour for gluten, cashew cream for dairy, peanuts for tree nuts). Options are listed in the order the test kitchen ranks them for taste, not for safety.",
+  "substitutions": [
+    {"ingredient": "butter", "avoid": "DAIRY", "options": [
+      {"substitute": "coconut oil (solid)", "ratio": "1:1 by weight", "allergens": [], "may_contain": [], "note": "Chill dough longer; coconut oil softens fast."},
+      {"substitute": "dairy-free baking spread", "ratio": "1:1 by weight", "allergens": ["SOY"], "may_contain": [], "note": "Closest texture to butter in biscuits."}
+    ]},
+    {"ingredient": "ghee", "avoid": "DAIRY", "options": [
+      {"substitute": "coconut oil", "ratio": "1:1", "allergens": [], "may_contain": [], "note": "Use for tempering; flavour is milder."}
+    ]},
+    {"ingredient": "milk", "avoid": "DAIRY", "options": [
+      {"substitute": "oat milk", "ratio": "1:1", "allergens": [], "may_contain": ["GLUTEN"], "note": "Most oat milks are not certified gluten-free."},
+      {"substitute": "almond milk", "ratio": "1:1", "allergens": ["TREE_NUT"], "may_contain": [], "note": ""},
+      {"substitute": "soy milk", "ratio": "1:1", "allergens": ["SOY"], "may_contain": [], "note": "Best protein match for baking."}
+    ]},
+    {"ingredient": "cream", "avoid": "DAIRY", "options": [
+      {"substitute": "cashew cream", "ratio": "1:1", "allergens": ["TREE_NUT"], "may_contain": [], "note": "Richest texture of the options."},
+      {"substitute": "coconut cream", "ratio": "1:1", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "yogurt", "avoid": "DAIRY", "options": [
+      {"substitute": "coconut yogurt", "ratio": "1:1", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "curd", "avoid": "DAIRY", "options": [
+      {"substitute": "coconut yogurt", "ratio": "1:1", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "parmesan", "avoid": "DAIRY", "options": [
+      {"substitute": "nutritional yeast", "ratio": "2 tbsp per 25 g", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "chocolate chips", "avoid": "DAIRY", "options": [
+      {"substitute": "dairy-free dark chocolate chips", "ratio": "1:1", "allergens": ["SOY"], "may_contain": ["TREE_NUT"], "note": "Check the label: many vegan chocolates are made on nut lines."}
+    ]},
+    {"ingredient": "cashew", "avoid": "TREE_NUT", "options": [
+      {"substitute": "roasted peanuts", "ratio": "1:1", "allergens": ["PEANUT"], "may_contain": [], "note": "Peanuts are legumes, not tree nuts. NOT suitable for a general 'nut' allergy."},
+      {"substitute": "roasted sunflower seeds", "ratio": "1:1", "allergens": [], "may_contain": [], "note": "Similar crunch."}
+    ]},
+    {"ingredient": "pine nuts", "avoid": "TREE_NUT", "options": [
+      {"substitute": "toasted sunflower seeds", "ratio": "1:1", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "walnuts", "avoid": "TREE_NUT", "options": [
+      {"substitute": "pumpkin seeds", "ratio": "1:1", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "almond", "avoid": "TREE_NUT", "options": [
+      {"substitute": "pumpkin seeds", "ratio": "1:1", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "baking-fat blend", "avoid": "TREE_NUT", "options": [
+      {"substitute": "unsalted butter", "ratio": "1:1 by weight", "allergens": ["DAIRY"], "may_contain": [], "note": "Returns the recipe to its pre-2025 fat."},
+      {"substitute": "coconut oil (solid)", "ratio": "1:1 by weight", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "peanut", "avoid": "PEANUT", "options": [
+      {"substitute": "cashews", "ratio": "1:1", "allergens": ["TREE_NUT"], "may_contain": [], "note": "Traditional in Tamil tempering. NOT suitable for a general 'nut' allergy."},
+      {"substitute": "roasted sunflower seeds", "ratio": "1:1", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "peanut butter", "avoid": "PEANUT", "options": [
+      {"substitute": "almond butter", "ratio": "1:1", "allergens": ["TREE_NUT"], "may_contain": [], "note": "Closest flavour."},
+      {"substitute": "tahini", "ratio": "1:1", "allergens": ["SESAME"], "may_contain": [], "note": ""},
+      {"substitute": "sunflower seed butter", "ratio": "1:1", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "peanut oil", "avoid": "PEANUT", "options": [
+      {"substitute": "sunflower oil", "ratio": "1:1", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "flour", "avoid": "GLUTEN", "options": [
+      {"substitute": "almond flour", "ratio": "1:1 by weight, add 1 egg white per 100 g", "allergens": ["TREE_NUT"], "may_contain": [], "note": "Best crumb in shortbread and cookies."},
+      {"substitute": "gluten-free flour blend", "ratio": "1:1 by weight", "allergens": [], "may_contain": ["SOY"], "note": ""},
+      {"substitute": "rice flour", "ratio": "1:1 by weight", "allergens": [], "may_contain": [], "note": "Sandier texture."}
+    ]},
+    {"ingredient": "breadcrumbs", "avoid": "GLUTEN", "options": [
+      {"substitute": "ground almonds", "ratio": "1:1", "allergens": ["TREE_NUT"], "may_contain": [], "note": ""},
+      {"substitute": "gluten-free breadcrumbs", "ratio": "1:1", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "noodles", "avoid": "GLUTEN", "options": [
+      {"substitute": "rice noodles", "ratio": "1:1", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "linguine", "avoid": "GLUTEN", "options": [
+      {"substitute": "gluten-free linguine", "ratio": "1:1", "allergens": [], "may_contain": ["SOY"], "note": ""}
+    ]},
+    {"ingredient": "soy sauce", "avoid": "SOY", "options": [
+      {"substitute": "coconut aminos", "ratio": "1:1", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "soy sauce", "avoid": "GLUTEN", "options": [
+      {"substitute": "tamari", "ratio": "1:1", "allergens": ["SOY"], "may_contain": [], "note": "Check it is labelled gluten-free."}
+    ]},
+    {"ingredient": "asafoetida", "avoid": "GLUTEN", "options": [
+      {"substitute": "certified gluten-free asafoetida", "ratio": "1:1", "allergens": [], "may_contain": [], "note": "Standard asafoetida is cut with wheat flour."}
+    ]},
+    {"ingredient": "egg", "avoid": "EGG", "options": [
+      {"substitute": "flax egg (1 tbsp ground flax + 3 tbsp water)", "ratio": "per egg", "allergens": [], "may_contain": [], "note": "Rest 5 minutes before using."},
+      {"substitute": "aquafaba (3 tbsp chickpea water)", "ratio": "per egg", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "sesame oil", "avoid": "SESAME", "options": [
+      {"substitute": "sunflower oil", "ratio": "1:1", "allergens": [], "may_contain": [], "note": "Loses the toasted flavour."}
+    ]},
+    {"ingredient": "sesame buns", "avoid": "SESAME", "options": [
+      {"substitute": "plain burger buns", "ratio": "1:1", "allergens": ["GLUTEN"], "may_contain": ["SESAME"], "note": "Most bakeries handle sesame on the same line."}
+    ]},
+    {"ingredient": "tahini", "avoid": "SESAME", "options": [
+      {"substitute": "sunflower seed butter", "ratio": "1:1", "allergens": [], "may_contain": [], "note": ""}
+    ]},
+    {"ingredient": "worcestershire sauce", "avoid": "FISH", "options": [
+      {"substitute": "vegan worcestershire sauce", "ratio": "1:1", "allergens": [], "may_contain": ["GLUTEN"], "note": ""}
+    ]}
+  ]
+}

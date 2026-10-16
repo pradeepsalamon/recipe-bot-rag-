@@ -1,0 +1,12 @@
+# Pantry-to-Plate (Week 12 capstone). Python 3.11+ (built and tested on 3.12.10).
+# Pinned to the versions the test suite passed on, 2026-10-16.
+python-dotenv==1.2.3
+groq==0.37.1
+mcp==2.2.0                 # 2.x API: MCPServer (FastMCP was renamed)
+chromadb==1.5.9
+langchain-chroma==1.1.0
+langchain-huggingface==1.2.2
+langchain-core==1.6.4
+sentence-transformers==6.1.0
+rank-bm25==0.2.2
+langsmith==0.14.0          # only used when PANTRY_LANGSMITH=1
