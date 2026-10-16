@@ -186,6 +186,11 @@ def main():
     j = sub.add_parser("judge")
     j.add_argument("run_file", help="evals/results/<run>.jsonl")
     sub.add_parser("label").add_argument("run_file")
+    rs = sub.add_parser("rescore", help="re-apply current assertions to a run's stored answers")
+    rs.add_argument("run_file")
+    rs.add_argument("--merge", nargs="*", default=[],
+                    help="re-run files whose answers replace this run's INFRA rows")
+    rs.add_argument("--no-judge", action="store_true")
     sub.add_parser("report")
     sub.add_parser("check-data")
     sub.add_parser("test", help="pytest suite; extra args go to pytest, e.g. test -k cache")
@@ -254,6 +259,9 @@ def main():
     if args.cmd == "label":
         from evals import judge
         return judge.label(args.run_file)
+    if args.cmd == "rescore":
+        from evals import rescore
+        return rescore.rescore(args.run_file, use_judge=not args.no_judge, extra_files=args.merge)
 
     if not os.getenv("GROQ_API_KEY"):
         print("GROQ_API_KEY is not set. Put it in app/.env (see .env.example).")

@@ -37,8 +37,11 @@ PRICES = {
     EMBED_MODEL: {"input": 0.0, "cached_input": 0.0, "output": 0.0},
 }
 
-# Groq free tier for gpt-oss-20b (week 11, from x-ratelimit-* headers).
-GROQ_LIMITS = {"tokens_per_minute": 8000, "requests_per_day": 1000}
+# Groq free tier for gpt-oss-20b. TPM and RPD come back in the x-ratelimit-*
+# headers on every call; tokens-per-DAY does not: it was read from the 429
+# message on 2026-10-16 ("tokens per day (TPD): Limit 200000"). It is the
+# limit that binds first (~5.4k tokens per question -> ~37 questions/day).
+GROQ_LIMITS = {"tokens_per_minute": 8000, "requests_per_day": 1000, "tokens_per_day": 200_000}
 
 # Week 7 budgets, re-tuned for a 7-tool agent.
 BUDGETS = {
@@ -55,6 +58,32 @@ RETRIEVAL = {
 }
 
 RELEASE = os.getenv("PANTRY_RELEASE", "v1")
+
+# A release = the prompt file + behaviour switches that go with it. Before ->
+# after comparisons run the same suite with PANTRY_RELEASE=v1 vs =v2.
+#   hide_superseded:      search/pantry results leave out superseded versions
+#                         unless the caller asks (include_superseded=true).
+#                         They stay in the index: hiding them from the INDEX
+#                         would hide the bug, not fix it.
+#   current_version_guard: check_allergens on a superseded version also
+#                         returns, and decides by, the CURRENT version.
+#   substitution_check:   check_allergens accepts the system's own swaps and
+#                         checks the recipe AS SUBSTITUTED (bonus challenge).
+#   answer_validator:     deterministic checks on the final answer, one
+#                         repair round (pantry/validator.py).
+RELEASES = {
+    "v1": {"prompt": "agent_v1.txt"},
+    "v2": {"prompt": "agent_v2.txt", "hide_superseded": True, "current_version_guard": True,
+           "substitution_check": True, "answer_validator": True, "max_repairs": 1},
+}
+
+
+def release_settings():
+    return RELEASES[RELEASE]
+
+
+def feature(name):
+    return bool(RELEASES[RELEASE].get(name))
 
 
 def _flag(name, default="0"):

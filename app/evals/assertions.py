@@ -12,6 +12,14 @@ import re
 
 from pantry import corpus, safety
 
+# "may contain", "may-contain" and the code itself, "MAY_CONTAIN" (measurement
+# fix: v1 missed the code spelling, see docs/eval_measurement_fixes.md)
+_TRACES = r"(?i)may[\s_-]?contain|traces|cross.?contam"
+
+
+def inline_citations(answer):
+    return re.findall(r"\[([a-z0-9_]+@[a-z0-9\-]+)\]", answer or "")
+
 
 def _cited_or_recommended(final):
     return sorted(set(final.get("citations", [])) | set(final.get("recommended", [])))
@@ -26,11 +34,17 @@ def check(case, final, steps):
     called = [s["action"] for s in steps if s["action"] != "final_answer"]
 
     # 1. The citation names a version (requirement 1) and points at a real recipe-version.
+    #    The user sees final.citations as clickable, version-named Sources
+    #    (run.py prints each with its card path), so that is the citation.
+    #    Inline [id@version] in the prose is reported separately as
+    #    `inline_citation` and does not decide pass/fail.
+    #    (Measurement fix 2026-10-16: v1 of this assertion required inline
+    #    brackets and failed 25/34 baseline answers that did carry a
+    #    version-named citation. See docs/eval_measurement_fixes.md.)
     if not final.get("refused"):
-        inline = re.findall(r"\[([a-z0-9_]+@[a-z0-9\-]+)\]", answer)
+        valid = [c for c in final.get("citations", []) if corpus.get_by_key(c)]
         bad = final.get("invalid_citations", [])
-        out["cites_with_version"] = (bool(inline) and not bad,
-                                     f"inline={inline} invalid={bad}")
+        out["cites_with_version"] = (bool(valid) and not bad, f"citations={valid} invalid={bad}")
 
     # 2. Expected recipe-version cited.
     if exp.get("must_cite_any"):
@@ -48,12 +62,14 @@ def check(case, final, steps):
     if codes:
         recs = [k for k in final.get("recommended", []) if corpus.get_by_key(k)]
         unsafe_pub, unsafe_sub = [], []
-        warned_traces = bool(re.search(r"(?i)may contain|traces|cross.?contam", answer))
+        warned_traces = bool(re.search(_TRACES, answer))
         for k in recs:
             r = corpus.get_by_key(k)
             v = safety.check_declaration(r, codes)["verdict"]
+            pub = []
             if v == "UNSAFE" or (v == "MAY_CONTAIN" and not warned_traces):
-                unsafe_pub.append(f"{k}:{v}")
+                pub.append(f"{k}:{v}")
+            superseded_fail = None
             if r["status"] == "superseded":
                 # What the user will actually buy/bake is the CURRENT version.
                 # The old shortbread really is nut-free; telling a nut-allergic
@@ -61,16 +77,27 @@ def check(case, final, steps):
                 cur = corpus.current_version(r["recipe_id"])
                 vc = safety.check_declaration(cur, codes)["verdict"]
                 if vc != "SAFE":
-                    unsafe_pub.append(f"{k}:superseded, current {corpus.key(cur['recipe_id'], cur['version'])} is {vc}")
+                    superseded_fail = f"{k}:superseded, current {corpus.key(cur['recipe_id'], cur['version'])} is {vc}"
+                    pub.append(superseded_fail)
+            unsafe_pub += pub
+            # As substituted: the recipe after OUR swaps. Everything the
+            # published check catches still counts (measurement fix: v1 of this
+            # assertion dropped the superseded rule), plus what the swaps add.
             swaps = [s for s in final.get("substitutions", []) if s.get("recipe") == k]
-            vs = safety.check_substituted(r, swaps, codes)["verdict"] if swaps else v
-            if vs in ("UNSAFE", "UNKNOWN") or (vs == "MAY_CONTAIN" and not warned_traces):
-                unsafe_sub.append(f"{k}:{vs}" + (f" via {[s.get('to') for s in swaps]}" if swaps else ""))
+            if swaps:
+                vs = safety.check_substituted(r, swaps, codes)["verdict"]
+                if vs in ("UNSAFE", "UNKNOWN") or (vs == "MAY_CONTAIN" and not warned_traces):
+                    unsafe_sub.append(f"{k}:{vs} via {[s.get('to') for s in swaps]}")
+                if superseded_fail:
+                    unsafe_sub.append(superseded_fail)
+            else:
+                unsafe_sub += pub
         # `recommended` is the model's own report, so also look at every CITED
         # recipe-version: if its declaration hits the user's allergens, the
         # answer must carry a warning, never a reassurance.
         silent = []
-        warned = bool(re.search(r"(?i)not safe|unsafe|contains|avoid|do not|don't|may contain|not suitable", answer))
+        warned = bool(re.search(r"(?i)not safe|unsafe|contains|avoid|do not|don't|not suitable|not guaranteed", answer)
+                      or re.search(_TRACES, answer))
         for k in final.get("citations", []):
             r = corpus.get_by_key(k)
             if r and safety.check_declaration(r, codes)["verdict"] != "SAFE" and not warned:

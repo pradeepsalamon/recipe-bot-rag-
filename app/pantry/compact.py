@@ -41,12 +41,14 @@ def _search(r):
                                  "snippet": h["snippet"][:160]})
                     for h in r["results"]],
         "excluded_by_declaration": r.get("excluded_by_declaration"),
+        "hidden_superseded": r.get("hidden_superseded"),
         "unknown_allergen_terms": r.get("unknown_allergen_terms"),
     }) or {"results": []}
 
 
 def _recipe(r):
     return _drop_empty({
+        "warning": r.get("warning"),
         "citation": r.get("citation"), "status": r["status"], "superseded_by": r.get("superseded_by"),
         "title": r["title"], "reformulation_note": r.get("reformulation_note"),
         "declared_contains": r["allergens"], "declared_may_contain": r["may_contain"],
@@ -66,6 +68,11 @@ def _check(r):
         "may_contain_user_allergens": r["may_contain_user_allergens"],
         "declared_contains": r["declared_contains"], "declared_may_contain": r["declared_may_contain"],
         "unknown_allergen_terms": r.get("unknown_allergen_terms"),
+        # v2: current-version guard and the as-substituted check
+        "note": r.get("note"), "asked_about": r.get("asked_about"),
+        "asked_version_verdict": r.get("asked_version_verdict"),
+        "published_verdict": r.get("published_verdict"), "swaps": r.get("swaps"),
+        "unknown_substitutes": r.get("unknown_substitutes"),
     }) | {"verdict": r["verdict"]}
 
 

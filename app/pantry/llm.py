@@ -5,7 +5,7 @@ rate-limit headers (week11/pipeline._call_groq, extended for tool calling).
 Production behaviour:
   - one client per process (connection pool reused; week 7/11 built a new
     client, i.e. a new TLS handshake, on every call);
-  - 429: wait retry-after (capped), up to max_retries;
+  - 429: wait max(retry-after, 2^n) seconds (capped at 60), up to 8 times;
   - 5xx / connection / timeout: short exponential backoff, LLM_TRANSIENT_RETRIES;
   - gpt-oss malformed tool call (tool_use_failed): one retry;
   - anything else raises LLMError, which the agent turns into a clean stop.
@@ -34,7 +34,7 @@ def client():
         return _client
 
 
-def chat(messages, sp, tools=None, model=None, reasoning_effort=None, max_retries=5):
+def chat(messages, sp, tools=None, model=None, reasoning_effort=None, max_retries=8):
     import groq
 
     model = model or config.AGENT_MODEL
@@ -55,9 +55,28 @@ def chat(messages, sp, tools=None, model=None, reasoning_effort=None, max_retrie
             break
         except groq.RateLimitError as exc:
             rate_retries += 1
+            # which limit (tokens/min, tokens/day, requests/day) is only in the
+            # message body; keep it on the span so the trace says why
+            msg = str(exc)[:300]
+            sp.attrs.setdefault("rate_limit_messages", []).append(
+                {"retry_after": exc.response.headers.get("retry-after"), "message": msg})
+            sp.attrs["rate_limit_messages"] = sp.attrs["rate_limit_messages"][-3:]
             if rate_retries > max_retries:
-                raise LLMError(f"rate limited {rate_retries} times") from exc
-            wait = min(float(exc.response.headers.get("retry-after", 10)), 60)
+                raise LLMError(f"rate limited {rate_retries} times; last: {msg[:200]}") from exc
+            # A per-DAY limit (Groq free tier: 200k tokens/day for gpt-oss-20b)
+            # frees up over hours, not seconds. Retrying inside a request only
+            # makes the user wait minutes for the same failure (2026-10-16: a
+            # case waited 8 minutes, then failed anyway). Fail fast instead.
+            retry_after = float(exc.response.headers.get("retry-after", 0) or 0)
+            if "per day" in msg or retry_after > 120:
+                sp.attrs["daily_limit"] = True
+                raise LLMError(f"provider daily limit reached, retry after ~{retry_after / 60:.0f} min: "
+                               f"{msg[:160]}") from exc
+            # Groq's retry-after on the per-minute token limit is often a few
+            # seconds; when another process shares the key that is not enough
+            # (2026-10-16: an eval and a re-score collided, 11 cases gave up
+            # after 6 short waits). Back off at least exponentially.
+            wait = min(max(float(exc.response.headers.get("retry-after", 10)), 2 ** rate_retries), 60)
             waited += wait
             time.sleep(wait)
         except (groq.APIConnectionError, groq.APITimeoutError, groq.InternalServerError) as exc:

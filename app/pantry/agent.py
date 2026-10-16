@@ -28,11 +28,15 @@ import json
 import re
 import time
 
-from . import compact, config, corpus, llm, safety, scaling
+from . import compact, config, corpus, llm, safety, scaling, validator
 from .tracing import Trace, redact
 
-PROMPT_FILE = config.APP_DIR / "prompts" / "agent_v1.txt"
-PROMPT_VERSION = "agent_v1"
+def prompt_file():
+    return config.APP_DIR / "prompts" / config.release_settings()["prompt"]
+
+
+def prompt_version():
+    return prompt_file().stem
 
 LOCAL_TOOLS = [{
     "type": "function",
@@ -61,7 +65,7 @@ _UNAVAILABLE = ("Sorry, I can't answer right now: the assistant is temporarily u
 
 
 def _prompt():
-    return PROMPT_FILE.read_text(encoding="utf-8")
+    return prompt_file().read_text(encoding="utf-8")
 
 
 def _local_call(name, args):
@@ -184,12 +188,13 @@ async def run(question, registry, trace=None, on_event=None, budgets=None):
     messages = [{"role": "system", "content": _prompt()}, {"role": "user", "content": question}]
 
     steps, final, terminated_by = [], None, None
+    last_candidate, repairs = None, 0
     tok_in = tok_out = 0
     cost = 0.0
     t0 = time.time()
 
     with trace.span("agent", "agent") as root:
-        root.attrs.update({"prompt_version": PROMPT_VERSION, "release": config.RELEASE,
+        root.attrs.update({"prompt_version": prompt_version(), "release": config.RELEASE,
                            "tools_discovered": sorted(registry.tools), "tools_local": sorted(_LOCAL_NAMES)})
         for it in range(1, budgets["max_iters"] + 1):
             if time.time() - t0 > budgets["max_wall_clock_s"]:
@@ -217,7 +222,24 @@ async def run(question, registry, trace=None, on_event=None, budgets=None):
 
             calls = msg.tool_calls or []
             if not calls:
-                final = parse_final(msg.content)
+                candidate = parse_final(msg.content)
+                issues = (validator.problems(question, candidate, steps)
+                          if config.feature("answer_validator") else [])
+                if issues and repairs < config.release_settings().get("max_repairs", 1):
+                    repairs += 1
+                    last_candidate = candidate
+                    steps.append({"step": it, "action": "validator_repair", "issues": issues})
+                    root.attrs.setdefault("validator_issues", []).extend(issues)
+                    emit("validator", "validator_repair", {}, f"{len(issues)} problem(s) sent back to the model")
+                    messages.append({"role": "assistant", "content": msg.content or ""})
+                    messages.append({"role": "user", "content":
+                                     "Your answer was NOT sent to the user. Fix these problems, calling tools as "
+                                     "needed, then reply with the JSON object again:\n- " + "\n- ".join(issues)})
+                    continue
+                final = candidate
+                if issues:
+                    final["validator_unresolved"] = issues
+                    root.attrs["validator_unresolved"] = issues
                 steps.append({"step": it, "action": "final_answer"})
                 break
 
@@ -235,6 +257,9 @@ async def run(question, registry, trace=None, on_event=None, budgets=None):
         else:
             terminated_by = "max_iters"
 
+        if final is None and last_candidate is not None and terminated_by != "llm_error":
+            # budget ran out during the repair turn: send the last answer, flagged
+            final = dict(last_candidate, validator_unresolved=root.attrs.get("validator_issues", []))
         if final is None:
             text = (_UNAVAILABLE if terminated_by == "llm_error"
                     else f"I could not finish this request (stopped by {terminated_by}). "
@@ -248,7 +273,7 @@ async def run(question, registry, trace=None, on_event=None, budgets=None):
 
 
 def build_record(trace, question, final, steps, terminated_by, tok_in, tok_out, cost, cache=None):
-    tools_called = [s["action"] for s in steps if s["action"] != "final_answer"]
+    tools_called = [s["action"] for s in steps if s["action"] not in ("final_answer", "validator_repair")]
     checked_codes = sorted({c for s in steps if s["action"] == "check_allergens"
                             for c in safety.normalise_allergies(s["input"].get("allergies", []) or [])[0]})
     return {
@@ -257,7 +282,7 @@ def build_record(trace, question, final, steps, terminated_by, tok_in, tok_out, 
         "session_id": trace.session_id,
         "source": trace.source,
         "release": config.RELEASE,
-        "prompt_version": PROMPT_VERSION,
+        "prompt_version": prompt_version(),
         "model": config.AGENT_MODEL,
         "query": redact(question),
         "allergen_codes_checked": checked_codes,
@@ -268,6 +293,8 @@ def build_record(trace, question, final, steps, terminated_by, tok_in, tok_out, 
         "substitutions": final["substitutions"],
         "refused": final["refused"],
         "invalid_citations": final.get("invalid_citations", []),
+        "validator_repairs": [s["issues"] for s in steps if s["action"] == "validator_repair"],
+        "validator_unresolved": final.get("validator_unresolved", []),
         "terminated_by": terminated_by,
         "cache": cache or {"enabled": False},
         "latency_ms": round(trace.elapsed_ms(), 1),

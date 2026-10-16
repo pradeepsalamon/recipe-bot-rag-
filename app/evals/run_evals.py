@@ -42,6 +42,20 @@ NOT_COVERED = [
 ]
 
 
+def is_infra_error(record):
+    """No real answer because of the provider, not the system: the LLM gave
+    up (outage / quota), or the wall-clock budget was eaten by rate-limit
+    waits (>= half of it spent waiting)."""
+    term = record.get("terminated_by")
+    if term == "llm_error":
+        return True
+    if term == "max_wall_clock":
+        waited = sum(s.get("attrs", {}).get("retry_wait_s", 0) or 0
+                     for s in record.get("spans", []) if s.get("stage") == "llm")
+        return waited >= config.BUDGETS["max_wall_clock_s"] / 2
+    return False
+
+
 def load_cases(ids=None, category=None):
     cases = json.loads(CASES_FILE.read_text(encoding="utf-8"))["cases"]
     if ids:
@@ -91,21 +105,31 @@ async def main(ids=None, category=None, label="", use_judge=True, fail_on_unsafe
                 "judge": jv,
                 "system_pass": passed and (jv is None or jv["verdict"] == "pass"),
                 "cost_usd": res["record"]["cost_usd"], "latency_ms": res["record"]["latency_ms"],
+                # provider outage / daily quota: not a system answer, excluded from every rate
+                "infra_error": is_infra_error(res["record"]),
+                "terminated_by": res["record"].get("terminated_by"),
+                "validator_repairs": len(res["record"].get("validator_repairs", [])),
+                # stored so a run can be re-scored exactly (evals/rescore.py)
+                "steps": [{"action": s["action"], "input": s.get("input", {})}
+                          for s in res["steps"] if s["action"] != "final_answer"],
             }
             rows.append(row)
             with open(jsonl, "a", encoding="utf-8") as f:
                 f.write(json.dumps(row, ensure_ascii=False) + "\n")
             fails = [k for k, (ok, _) in checks.items() if not ok]
+            verdict = "INFRA" if row["infra_error"] else ("PASS" if row["system_pass"] else "FAIL")
             print(f"[{n:>2}/{len(cases)}] {case['id']} {case['category']:<22} "
-                  f"{'PASS' if row['system_pass'] else 'FAIL'}  traj={'ok' if traj['passed'] else 'MISS'}"
+                  f"{verdict}  traj={'ok' if traj['passed'] else 'MISS'}"
                   f"  {('failed: ' + ', '.join(fails)) if fails else ''}"
                   f"{'  judge=' + jv['verdict'] if jv else ''}  trace={res['trace_id'][:12]}")
 
+    infra = [r["case_id"] for r in rows if r["infra_error"]]
+    scored = [r for r in rows if not r["infra_error"]]
     md = RESULTS_DIR / f"{name}.md"
-    md.write_text(render_report(name, rows), encoding="utf-8")
+    md.write_text(render_report(name, scored, infra), encoding="utf-8")
     print(f"\nwrote {jsonl.relative_to(EVAL_DIR.parent)}\nwrote {md.relative_to(EVAL_DIR.parent)}")
-    print(summary_line(rows))
-    unsafe = [r["case_id"] for r in rows
+    print(summary_line(scored) + (f" | {len(infra)} infra errors excluded: {infra}" if infra else ""))
+    unsafe = [r["case_id"] for r in scored
               if not r["assertions"].get("allergen_safe_published", {}).get("pass", True)
               or not r["assertions"].get("allergen_safe_as_substituted", {}).get("pass", True)]
     if fail_on_unsafe and unsafe:
@@ -133,12 +157,15 @@ def summary_line(rows):
             f"| allergen-unsafe (as substituted) {sb - sa}/{sb}")
 
 
-def render_report(name, rows):
+def render_report(name, rows, infra=()):
     k, n, p = _rate(rows)
     out = [f"# Eval report: {name}", "",
-           f"Release `{config.RELEASE}`, model `{config.AGENT_MODEL}`, prompt `{agent.PROMPT_VERSION}`, "
-           f"{n} cases, run {datetime.now().isoformat(timespec='minutes')}.", "",
+           f"Release `{config.RELEASE}`, model `{config.AGENT_MODEL}`, prompt `{agent.prompt_version()}`, "
+           f"{n} cases scored, run {datetime.now().isoformat(timespec='minutes')}.", "",
            f"**System pass (all assertions, then judge): {k}/{n} = {p:.1f}%**", ""]
+    if infra:
+        out += [f"Excluded as infrastructure errors (provider outage / quota, no answer produced): "
+                f"{', '.join(infra)}. They are not counted as passes or failures.", ""]
 
     out += ["## Safety numbers (deterministic, exact match on declarations)", "",
             "| Metric | Failing / n | Rate |", "|---|---|---|"]
@@ -149,6 +176,11 @@ def render_report(name, rows):
                      ("Citation missing its version / invalid", "cites_with_version")]:
         ok, tot, _ = _assert_rate(rows, a)
         out.append(f"| {label} | {tot - ok} / {tot} | {(100 * (tot - ok) / tot) if tot else 0:.1f}% |")
+    answered = [r for r in rows if not r["refused"]]
+    inline = sum(1 for r in answered if assertions.inline_citations(r["answer"]))
+    out.append(f"| Answer prose without an inline [recipe@version] (informational, not pass/fail) "
+               f"| {len(answered) - inline} / {len(answered)} | "
+               f"{(100 * (len(answered) - inline) / len(answered)) if answered else 0:.1f}% |")
     ok_p = {r["case_id"] for r in rows if r["assertions"].get("allergen_safe_published", {}).get("pass")}
     flipped = [r["case_id"] for r in rows if r["case_id"] in ok_p
                and not r["assertions"].get("allergen_safe_as_substituted", {}).get("pass", True)]
@@ -191,8 +223,12 @@ def render_report(name, rows):
 
     judged = [r for r in rows if r["judge"]]
     jk = sum(1 for r in judged if r["judge"]["verdict"] == "pass")
+    ak, an, ap = _rate(rows, lambda r: r["assertions_passed"])
     out += ["", "## Judge", "",
-            f"Judge (`{config.JUDGE_MODEL}`, grounding + answers-the-question only, never allergens) ran on "
+            f"Pass on deterministic assertions alone: **{ak}/{an} = {ap:.1f}%**. The headline system pass "
+            "above also requires the judge, which is NOT yet validated against hand labels on these "
+            "outputs, so read both numbers.", ""]
+    out += [f"Judge (`{config.JUDGE_MODEL}`, grounding + answers-the-question only, never allergens) ran on "
             f"{len(judged)} cases that passed every assertion: {jk} pass.",
             "Judge agreement with hand labels is computed by `python run.py judge <this run>.jsonl` "
             "after `python run.py label <this run>.jsonl`.", ""]

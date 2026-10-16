@@ -151,12 +151,14 @@ def warm_in_background():
     threading.Thread(target=warm, daemon=True).start()
 
 
-def search(query, top_k=None, exclude_allergens=None):
+def search(query, top_k=None, exclude_allergens=None, include_superseded=True):
     """Return recipe-version hits, best first.
 
     exclude_allergens: allergen terms; recipe-versions whose DECLARATION
     (allergens or may_contain) intersects them are dropped by exact match
     before ranking is cut to top_k.
+    include_superseded=False: superseded versions are left out of the results
+    (still in the index) and listed under hidden_superseded.
     """
     s = _load()
     top_k = top_k or config.RETRIEVAL["top_k"]
@@ -179,11 +181,15 @@ def search(query, top_k=None, exclude_allergens=None):
     meta_by_id = dict(zip(s["ids"], s["metas"]))
     text_by_id = dict(zip(s["ids"], s["texts"]))
 
-    hits, dropped = {}, []
+    hits, dropped, hidden = {}, [], []
     for cid, score in sorted(fused.items(), key=lambda x: -x[1]):
         m = meta_by_id[cid]
         k = m["recipe_key"]
         r = corpus.get_by_key(k)
+        if not include_superseded and r["status"] == "superseded":
+            if k not in hidden:
+                hidden.append(k)
+            continue
         if codes and (set(codes) & (set(r["allergens"]) | set(r["may_contain"]))):
             if k not in dropped:
                 dropped.append(k)
@@ -198,5 +204,8 @@ def search(query, top_k=None, exclude_allergens=None):
     ranked = sorted(hits.values(), key=lambda h: -h["score"])[:top_k]
     for h in ranked:
         h["score"] = round(h["score"], 4)
-    return {"query": query, "results": ranked, "excluded_by_declaration": dropped,
-            "excluded_for": codes, "unknown_allergen_terms": unknown}
+    out = {"query": query, "results": ranked, "excluded_by_declaration": dropped,
+           "excluded_for": codes, "unknown_allergen_terms": unknown}
+    if not include_superseded:
+        out["hidden_superseded"] = hidden
+    return out

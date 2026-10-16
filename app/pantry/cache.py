@@ -97,7 +97,7 @@ def store_reason(final):
 def fingerprint(model=None):
     """Changes whenever anything that shapes an answer changes."""
     h = hashlib.sha256()
-    prompt = config.APP_DIR / "prompts" / "agent_v1.txt"
+    prompt = config.APP_DIR / "prompts" / config.release_settings()["prompt"]
     for path in (prompt, config.RECIPES_FILE, config.SUBSTITUTIONS_FILE, config.FOOD_SAFETY_FILE):
         h.update(path.read_bytes())
     h.update(f"{model or config.AGENT_MODEL}|{config.RELEASE}".encode())

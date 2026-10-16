@@ -47,16 +47,44 @@ Every answer prints:
 | `python run.py chat` | Interactive session |
 | `python run.py trace <trace_id>` | Every span of one request across both processes (agent + MCP server), with latency, tokens and cost |
 | `python run.py eval` | Full suite (34 cases) against the integrated system: assertions, then trajectory, then judge. Writes `evals/results/<run>.md` + `.jsonl`. **Takes 20–30 min on the Groq free tier.** `--cases B01,B19` or `--category scaling` runs a subset. `--no-judge` skips the judge. `--fail-on-unsafe` exits 1 if any answer is allergen-unsafe (for CI). The cache is always bypassed. |
+| `python run.py rescore <run>.jsonl` | Re-apply the current assertions to a run's stored answers (no model calls except the judge on newly passing cases) |
 | `python run.py label <run>.jsonl` | Hand-label outputs pass/fail; this is the ground truth for the judge |
 | `python run.py judge <run>.jsonl` | Re-run the judge on labelled outputs and report agreement (bar: 85%) |
 | `python run.py report` | Cost per query and what breaks first at 50,000 / 500,000 queries a day, from the logs |
-| `python run.py test [-k ...]` | pytest suite, 111 tests, about 25 s, fully offline (details below) |
+| `python run.py test [-k ...]` | pytest suite, 130 tests, about 25 s, fully offline (details below) |
 | `python run.py doctor [--online]` | Setup check: Python, dependencies, key, data, index, MCP server. `--online` adds one tiny Groq call |
 | `python run.py check-data` | Where a recipe's allergen declaration and its ingredient list disagree |
 | `python run.py serve-mcp [--http 8799]` | The MCP server on its own, for any MCP client |
 | `python run.py ingest` | Rebuild cards and index after editing `data/` |
 | `python run.py cache stats\|clear` | Semantic cache status, or empty it |
 | `python run.py langsmith check\|backfill` | Is the LangSmith mirror receiving? Re-send a log file |
+
+## Releases
+
+`PANTRY_RELEASE=v1|v2` picks the prompt and behaviour switches ([pantry/config.py](pantry/config.py)). The default stays `v1` until the before/after numbers are reviewed.
+
+| | v1 (baseline) | v2 (the fix) |
+|---|---|---|
+| Superseded versions in search / pantry results | shown, labelled | hidden unless `include_superseded=true`; still in the index |
+| `check_allergens` on a superseded version | verdict for that version | verdict for the **current** version, plus the asked version's verdict for reference |
+| Allergen check over the system's own substitutions | no | `check_allergens(..., substitutions=[...])` checks the recipe as substituted |
+| Answer validator | no | deterministic checks with one repair turn ([pantry/validator.py](pantry/validator.py)) |
+| Prompt | `prompts/agent_v1.txt` | `prompts/agent_v2.txt` |
+
+## Capstone documents
+
+| Document | What |
+|---|---|
+| [docs/architecture.md](docs/architecture.md) | One-page sketch: boxes, arrows, where the model calls and the money go |
+| [docs/seams.md](docs/seams.md) | Seam list with fixed / accepted / ran-out-of-time |
+| [docs/taxonomy.md](docs/taxonomy.md) | Error taxonomy re-scored on the integrated system, the integration-created mode, trace ids |
+| [docs/results.md](docs/results.md) | Before → after, n, allergy cases one by one, trajectory gap, judge status, non-coverage |
+| [docs/eval_measurement_fixes.md](docs/eval_measurement_fixes.md) | Assertions corrected after reading answers; both releases scored with the final ones |
+| [docs/weaknesses.md](docs/weaknesses.md) | Top known weaknesses |
+| [docs/demo_script.md](docs/demo_script.md) | The 10-minute, four-part demo |
+| [docs/fresh_eyes.md](docs/fresh_eyes.md) | Form for the fresh-eyes reviewer |
+| [docs/trace_B03_superseded_served.json](docs/trace_B03_superseded_served.json) | One end-to-end trace, every span, both processes |
+| [evals/results/](evals/results/) | Raw eval runs (`.jsonl`) and reports (`.md`), cost report |
 
 ## Optional features (off by default)
 
@@ -106,7 +134,7 @@ It sends **exactly the redacted log record**: masked health statements, allergen
 
 ## Tests
 
-`python run.py test`: 111 tests in about 25 s. No Groq or LangSmith calls, and logs go to a temp dir.
+`python run.py test`: 130 tests in about 25 s. No Groq or LangSmith calls, and logs go to a temp dir. `test_v2.py` covers the v2 fix: hidden superseded versions, the current-version guard, the as-substituted check, every validator rule, and the repair turn.
 
 | File | Covers |
 |---|---|
@@ -191,7 +219,7 @@ pantry/                service (the one request path), agent, mcp_client, mcp_se
                        tracing, llm, doctor, config
 evals/                 cases.json (34), assertions.py, run_evals.py, judge.py, report.py,
                        results/ (reports), labels/ (hand labels)
-tests/                 pytest suite (111 tests, offline)
+tests/                 pytest suite (130 tests, offline)
 docs/architecture.md   one-page sketch: boxes, arrows, model calls, where the money goes
 logs/                  requests.jsonl, eval_requests.jsonl, mcp_spans.jsonl (git-ignored)
 ```

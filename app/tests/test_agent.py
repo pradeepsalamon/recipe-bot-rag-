@@ -100,6 +100,34 @@ def test_llm_outage_ends_cleanly(fake_llm, fake_registry):
     assert res["final"]["refused"] and "temporarily unavailable" in res["final"]["answer"]
 
 
+def test_daily_limit_fails_fast_without_waiting(monkeypatch):
+    """A tokens-per-day 429 must not be retried for minutes inside a request."""
+    import groq
+    import httpx
+
+    from pantry.tracing import Span
+    req = httpx.Request("POST", "https://api.groq.com/openai/v1/chat/completions")
+    resp = httpx.Response(429, request=req, headers={"retry-after": "345"})
+    err = groq.RateLimitError("Rate limit reached ... on tokens per day (TPD): Limit 200000, Used 198930",
+                              response=resp, body=None)
+
+    class Boom:
+        class chat:
+            class completions:
+                class with_raw_response:
+                    @staticmethod
+                    def create(**kw):
+                        raise err
+    monkeypatch.setattr(llm, "client", lambda: Boom)
+    slept = []
+    monkeypatch.setattr(llm.time, "sleep", lambda s: slept.append(s))
+    sp = Span("llm#1", "llm")
+    with pytest.raises(llm.LLMError, match="daily limit"):
+        llm.chat([{"role": "user", "content": "x"}], sp)
+    assert slept == [] and sp.attrs["daily_limit"] is True
+    assert "tokens per day" in sp.attrs["rate_limit_messages"][0]["message"]
+
+
 def test_iteration_budget(fake_llm, fake_registry):
     fake_llm([model_turn(tool_call("safe_temperature", {"food": "chicken"}))] * 3)
     res = ask("loop forever", fake_registry(), budgets={"max_iters": 3})

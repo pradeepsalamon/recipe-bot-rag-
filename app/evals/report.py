@@ -21,7 +21,11 @@ def _pct(xs, p):
 
 
 def main():
-    recs = [r for r in read_jsonl(config.REQUEST_LOG) + read_jsonl(config.EVAL_LOG) if r.get("cost_usd") is not None]
+    # requests the provider refused produced no answer and no tokens: they say
+    # nothing about the cost of a question, so they are counted separately
+    allrecs = [r for r in read_jsonl(config.REQUEST_LOG) + read_jsonl(config.EVAL_LOG) if r.get("cost_usd") is not None]
+    recs = [r for r in allrecs if r.get("terminated_by") != "llm_error"]
+    refused_by_provider = len(allrecs) - len(recs)
     if not recs:
         print("No logged requests yet. Run `python run.py ask ...` or `python run.py eval` first.")
         return 1
@@ -55,26 +59,32 @@ def main():
              f"| One MCP hop (ms) | {statistics.mean(mcp_ms) if mcp_ms else 0:.0f} | {_pct(mcp_ms, .5):.0f} | {_pct(mcp_ms, .95):.0f} |",
              "", f"Rate-limit waits already seen: {sum(1 for w in waits if w)} LLM calls waited, {sum(waits):.0f} s total.",
              f"Semantic-cache hits: {sum(1 for r in recs if (r.get('cache') or {}).get('hit'))} of {n} "
-             "requests (served at $0; they are included in the means above).", ""]
+             "requests (served at $0; they are included in the means above).",
+             f"Requests the provider refused (rate limit / quota, no answer): {refused_by_provider}, "
+             "excluded from the means.", ""]
 
+    tpd = config.GROQ_LIMITS["tokens_per_day"]
     lines += ["## At scale", "",
               f"Assumption: busiest minute = {PEAK_FACTOR:.0f}x the average minute. Limits: Groq free tier for "
-              f"this model, {tpm:,} tokens/min and {rpd:,} requests/day (from the response headers).", "",
-              "| Queries/day | Cost/day | Avg tokens/min | Peak tokens/min | vs TPM limit | LLM requests/day | vs RPD limit |",
-              "|---|---|---|---|---|---|---|"]
+              f"this model: {tpm:,} tokens/min and {rpd:,} requests/day (response headers), {tpd:,} tokens/day "
+              "(from the 429 message; this one is not in the headers).", "",
+              "| Queries/day | Cost/day | Tokens/day | vs TPD | Peak tokens/min | vs TPM | LLM requests/day | vs RPD |",
+              "|---|---|---|---|---|---|---|---|"]
     for q in (50_000, 500_000):
-        avg_tpm = q * mean_tok / 1440
-        peak = avg_tpm * PEAK_FACTOR
+        per_day = q * mean_tok
+        peak = per_day / 1440 * PEAK_FACTOR
         reqs = q * mean_llm
-        lines.append(f"| {q:,} | ${q * mean_cost:,.2f} | {avg_tpm:,.0f} | {peak:,.0f} | {peak / tpm:,.0f}x over "
-                     f"| {reqs:,.0f} | {reqs / rpd:,.0f}x over |")
-    max_q_tpm = tpm / mean_tok * 1440 / PEAK_FACTOR
-    max_q_rpd = rpd / mean_llm
-    first = "requests/day" if max_q_rpd < max_q_tpm else "tokens/minute"
+        lines.append(f"| {q:,} | ${q * mean_cost:,.2f} | {per_day / 1e6:,.0f}M | {per_day / tpd:,.0f}x over "
+                     f"| {peak:,.0f} | {peak / tpm:,.0f}x over | {reqs:,.0f} | {reqs / rpd:,.0f}x over |")
+    caps = {"tokens/day": tpd / mean_tok,
+            "tokens/minute": tpm / mean_tok * 1440 / PEAK_FACTOR,
+            "requests/day": rpd / mean_llm}
+    first = min(caps, key=caps.get)
     lines += ["",
-              f"**Breaks first: the provider {first} limit.** Today's limits carry about "
-              f"{min(max_q_tpm, max_q_rpd):,.0f} queries/day (TPM allows ~{max_q_tpm:,.0f}, RPD allows ~{max_q_rpd:,.0f}); "
-              f"50,000/day is {50_000 / min(max_q_tpm, max_q_rpd):,.0f}x past that.",
+              f"**Breaks first: the provider {first} limit, at about {caps[first]:,.0f} questions/day** "
+              f"({', '.join(f'{k} allows ~{v:,.0f}' for k, v in caps.items())}). "
+              f"50,000/day is {50_000 / caps[first]:,.0f}x past that. Measured, not projected: on 2026-10-16 "
+              "one 34-case eval run used 182k of the 200k daily tokens and the next run hit the cap.",
               f"Money is not the constraint: 50,000 queries/day costs about ${50_000 * mean_cost:,.2f}/day.",
               "Next in line after a paid tier: the MCP server is one stdio process per agent process and the "
               f"embedding model runs on CPU inside it. Median MCP hop {_pct(mcp_ms, .5):.0f} ms; p95 "
