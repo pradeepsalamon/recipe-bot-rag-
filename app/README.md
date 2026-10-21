@@ -55,6 +55,7 @@ Every answer prints:
 | `python run.py doctor [--online]` | Setup check: Python, dependencies, key, data, index, MCP server. `--online` adds one tiny Groq call |
 | `python run.py check-data` | Where a recipe's allergen declaration and its ingredient list disagree |
 | `python run.py serve-mcp [--http 8799]` | The MCP server on its own, for any MCP client |
+| `python run.py serve-api [--port 8000]` | HTTP API for the web chat in [`../frontend`](../frontend) (streams tool calls + answer as NDJSON) |
 | `python run.py ingest` | Rebuild cards and index after editing `data/` |
 | `python run.py cache stats\|clear` | Semantic cache status, or empty it |
 | `python run.py langsmith check\|backfill` | Is the LangSmith mirror receiving? Re-send a log file |

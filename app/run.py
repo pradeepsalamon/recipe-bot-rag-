@@ -7,6 +7,7 @@ Pantry-to-Plate: the single entry point.
     python run.py trace <trace_id>           # one request, every span, both processes
     python run.py report                     # cost per query + what breaks at 50k/day
     python run.py serve-mcp [--http 8799]    # the MCP server on its own, for any client
+    python run.py serve-api [--port 8000]    # HTTP API for the web chat (frontend/)
     python run.py ingest                     # rebuild cards + index (ask/eval do it if missing)
     python run.py check-data                 # declaration vs ingredient-list mismatches
     python run.py test                       # pytest suite, no API calls
@@ -173,6 +174,8 @@ def main():
     sub.add_parser("ingest")
     s = sub.add_parser("serve-mcp")
     s.add_argument("--http", type=int, default=None, help="serve streamable HTTP on this port")
+    sa = sub.add_parser("serve-api")
+    sa.add_argument("--port", type=int, default=8000)
     t = sub.add_parser("trace")
     t.add_argument("trace_id")
     t.add_argument("--out", default=None)
@@ -271,6 +274,9 @@ def main():
         asyncio.run(_ask([" ".join(args.question)]))
     elif args.cmd == "chat":
         asyncio.run(_ask([], interactive=True))
+    elif args.cmd == "serve-api":
+        from pantry import api
+        api.serve(args.port)
     elif args.cmd == "eval":
         from evals import run_evals
         return asyncio.run(run_evals.main(args.cases, args.category, args.label, not args.no_judge,

@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+:root {
+  --background: #faf7f2;
+  --surface: #ffffff;
+  --surface-muted: #f3eee6;
+  --foreground: #2a2420;
+  --muted: #7a6f66;
+  --border: #e6ddd1;
+  --accent: #c2410c;
+  --accent-soft: #fde8dc;
+  --warn: #b45309;
+  --warn-soft: #fef3c7;
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+  --ok: #15803d;
+  --ok-soft: #dcfce7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #161311;
+    --surface: #1f1b18;
+    --surface-muted: #28231f;
+    --foreground: #ede6de;
+    --muted: #a39789;
+    --border: #3a332d;
+    --accent: #fb923c;
+    --accent-soft: #3b2417;
+    --warn: #fbbf24;
+    --warn-soft: #3a2e12;
+    --danger: #f87171;
+    --danger-soft: #3b1717;
+    --ok: #4ade80;
+    --ok-soft: #14301d;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0.25; }
+  40% { opacity: 1; }
+}
+.dot { animation: blink 1.2s infinite both; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
