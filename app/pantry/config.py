@@ -15,11 +15,16 @@ SUBSTITUTIONS_FILE = DATA_DIR / "substitutions.json"
 FOOD_SAFETY_FILE = DATA_DIR / "food_safety.json"
 CARDS_DIR = DATA_DIR / "cards"            # one rendered .md per recipe-version: the citation target
 
-INDEX_DIR = APP_DIR / ".index"            # Chroma store, rebuilt by `run.py ingest`
+SERVERLESS = bool(os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"))
+
+BUNDLED_INDEX_DIR = APP_DIR / ".index"    # Chroma store, rebuilt by `run.py ingest`
+# Chroma opens its sqlite file read-write, and the deployed bundle is read-only:
+# serverless copies the bundled index to /tmp on first use (retriever._load).
+INDEX_DIR = Path("/tmp/pantry-index") if SERVERLESS else BUNDLED_INDEX_DIR
 COLLECTION = "pantry_v1"
 EMBED_MODEL = "all-MiniLM-L6-v2"          # week 3 model, local CPU, no API bill
 
-if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+if SERVERLESS:
     os.environ.setdefault("HF_HOME", "/tmp/huggingface")
 
 def _default_log_dir():

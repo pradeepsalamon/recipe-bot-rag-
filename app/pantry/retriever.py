@@ -130,6 +130,9 @@ def _load():
         from langchain_chroma import Chroma
         from rank_bm25 import BM25Okapi
 
+        if (not index_exists() and config.INDEX_DIR != config.BUNDLED_INDEX_DIR
+                and config.BUNDLED_INDEX_DIR.exists()):
+            shutil.copytree(config.BUNDLED_INDEX_DIR, config.INDEX_DIR)
         if not index_exists():
             build_index()
         db = Chroma(collection_name=config.COLLECTION, embedding_function=_embeddings(),

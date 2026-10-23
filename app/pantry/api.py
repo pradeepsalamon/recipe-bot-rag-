@@ -29,8 +29,16 @@ _state = {}
 
 @asynccontextmanager
 async def lifespan(_app):
-    async with McpToolRegistry() as reg:
-        _state["registry"] = reg
+    # A failed MCP start must not take the whole app down: /api/health then
+    # reports why instead of every route answering a bare 500.
+    try:
+        async with McpToolRegistry() as reg:
+            _state["registry"] = reg
+            yield
+    except Exception as exc:
+        if "registry" in _state:
+            raise
+        _state["startup_error"] = f"MCP server failed to start: {type(exc).__name__}: {exc}"[:500]
         yield
     _state.clear()
 
@@ -79,6 +87,8 @@ async def chat(req: ChatRequest):
         service.validate(req.question)
     except service.InvalidQuestion as exc:
         raise HTTPException(status_code=422, detail=str(exc))
+    if "registry" not in _state:
+        raise HTTPException(status_code=503, detail=_state.get("startup_error", "API is starting"))
 
     queue = asyncio.Queue()
 
@@ -119,6 +129,8 @@ def recipe(key: str):
 @app.get("/api/health")
 def health():
     reg = _state.get("registry")
+    if not reg and "startup_error" in _state:
+        return {"status": "error", "detail": _state["startup_error"], "release": config.RELEASE}
     return {"status": "ok" if reg else "starting", "release": config.RELEASE,
             "model": config.AGENT_MODEL, "cache": config.CACHE["enabled"],
             "tools": sorted(reg.tools) if reg else []}
