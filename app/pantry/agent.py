@@ -26,6 +26,7 @@ Logging, caching and the LangSmith mirror live in pantry/service.py.
 import asyncio
 import json
 import re
+import sys
 import time
 
 from . import compact, config, corpus, llm, safety, scaling, validator
@@ -215,6 +216,8 @@ async def run(question, registry, trace=None, on_event=None, budgets=None):
             except llm.LLMError as exc:
                 terminated_by = "llm_error"
                 root.attrs["llm_error"] = str(exc)[:200]
+                # the request log is in /tmp on serverless; stderr reaches the platform logs
+                print(f"llm_error trace={trace.trace_id}: {exc}", file=sys.stderr)
                 break
             tok_in += sp.tokens_in
             tok_out += sp.tokens_out
