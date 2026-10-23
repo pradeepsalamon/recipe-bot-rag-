@@ -1,5 +1,7 @@
 # Pantry-to-Plate (Week 12 capstone). Python 3.11+ (built and tested on 3.12.10).
 # Pinned to the versions the test suite passed on, 2026-10-16.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
 python-dotenv==1.2.3
 groq==0.37.1
 mcp==2.2.0                 # 2.x API: MCPServer (FastMCP was renamed)
