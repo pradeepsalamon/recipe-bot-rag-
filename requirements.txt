@@ -15,10 +15,6 @@ langchain-huggingface
 langchain-google-genai
 langchain-groq
 
-# API & Web Server
-fastapi
-uvicorn
-pydantic
 
 # LLM Providers Direct SDK
 google-generativeai

@@ -1,10 +1,10 @@
-import { API_URL, unreachable } from "@/lib/backend";
+import { backendUrl, unreachable } from "@/lib/backend";
 
 // Pass the NDJSON event stream straight through so tool calls show as they happen.
 export async function POST(request: Request) {
   let upstream: Response;
   try {
-    upstream = await fetch(`${API_URL}/api/chat`, {
+    upstream = await fetch(backendUrl("api/chat"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: await request.text(),
