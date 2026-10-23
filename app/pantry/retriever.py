@@ -30,27 +30,11 @@ from . import config, corpus, safety
 warnings.filterwarnings("ignore")
 os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
 os.environ.setdefault("ANONYMIZED_TELEMETRY", "False")
-for _name in ("httpx", "huggingface_hub", "sentence_transformers", "chromadb"):
+for _name in ("httpx", "chromadb"):
     logging.getLogger(_name).setLevel(logging.WARNING)
 
 _store = {}
 _lock = threading.Lock()
-
-
-def _offline_if_cached():
-    """Once the embedding model is in the local HF cache, stop the ~5 s of
-    HEAD requests to huggingface.co on every process start. Checked on disk,
-    because huggingface_hub reads HF_HUB_OFFLINE once, at import."""
-    from pathlib import Path
-    home = Path(os.getenv("HF_HOME", Path.home() / ".cache" / "huggingface"))
-    snap = home / "hub" / f"models--sentence-transformers--{config.EMBED_MODEL}" / "snapshots"
-    if snap.exists() and any(snap.glob("*/config.json")):
-        os.environ.setdefault("HF_HUB_OFFLINE", "1")
-    os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
-    os.environ.setdefault("TQDM_DISABLE", "1")
-
-
-_offline_if_cached()
 
 
 def _version_label(r):
@@ -87,11 +71,29 @@ _emb = None
 
 
 def _embeddings():
-    """One embedding model per process (index build, search, and the cache)."""
+    """One embedding model per process (index build, search, and the cache).
+
+    all-MiniLM-L6-v2 as the ONNX build chromadb ships, not sentence-transformers:
+    same vectors (cosine 1.0, max diff ~1e-7, checked 2026-10-23) without the
+    ~900 MB of torch that put the Vercel bundle over its 500 MB limit."""
     global _emb
     if _emb is None:
-        from langchain_huggingface import HuggingFaceEmbeddings
-        _emb = HuggingFaceEmbeddings(model_name=config.EMBED_MODEL)
+        from chromadb.utils.embedding_functions import ONNXMiniLM_L6_V2
+        from langchain_core.embeddings import Embeddings
+
+        class OnnxMiniLM(Embeddings):
+            def __init__(self):
+                if config.SERVERLESS:   # home is read-only there
+                    ONNXMiniLM_L6_V2.DOWNLOAD_PATH = config.ONNX_MODEL_DIR
+                self._fn = ONNXMiniLM_L6_V2()
+
+            def embed_documents(self, texts):
+                return [[float(x) for x in v] for v in self._fn(list(texts))]
+
+            def embed_query(self, text):
+                return self.embed_documents([text])[0]
+
+        _emb = OnnxMiniLM()
     return _emb
 
 

@@ -1,15 +1,12 @@
 # Pantry-to-Plate (Week 12 capstone). Python 3.11+ (built and tested on 3.12.10).
 # Pinned to the versions the test suite passed on, 2026-10-16.
---extra-index-url https://download.pytorch.org/whl/cpu
-torch
+# Keep in sync with pyproject.toml (what Vercel installs from).
 python-dotenv==1.2.3
 groq==0.37.1
 mcp==2.2.0                 # 2.x API: MCPServer (FastMCP was renamed)
-chromadb==1.5.9
+chromadb==1.5.9            # also runs the all-MiniLM-L6-v2 embeddings (ONNX, no torch)
 langchain-chroma==1.1.0
-langchain-huggingface==1.2.2
 langchain-core==1.6.4
-sentence-transformers==6.1.0
 rank-bm25==0.2.2
 fastapi==0.141.1          # only for `run.py serve-api` (web chat)
 uvicorn==0.53.0

@@ -23,9 +23,9 @@ BUNDLED_INDEX_DIR = APP_DIR / ".index"    # Chroma store, rebuilt by `run.py ing
 INDEX_DIR = Path("/tmp/pantry-index") if SERVERLESS else BUNDLED_INDEX_DIR
 COLLECTION = "pantry_v1"
 EMBED_MODEL = "all-MiniLM-L6-v2"          # week 3 model, local CPU, no API bill
-
-if SERVERLESS:
-    os.environ.setdefault("HF_HOME", "/tmp/huggingface")
+# chromadb downloads the ONNX build of EMBED_MODEL on first use (~80 MB);
+# serverless keeps it in /tmp, locally it stays in ~/.cache/chroma
+ONNX_MODEL_DIR = Path("/tmp/chroma/onnx_models") / EMBED_MODEL
 
 def _default_log_dir():
     if os.getenv("PANTRY_LOG_DIR"):

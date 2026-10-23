@@ -25,8 +25,7 @@ def main(online=False):
     results.append(_line(OK if v >= (3, 11) else FAIL, f"Python {v.major}.{v.minor}",
                          "" if v >= (3, 11) else "needs 3.11+ (built on 3.12)"))
 
-    for mod in ("dotenv", "groq", "mcp", "chromadb", "langchain_chroma", "langchain_huggingface",
-                "sentence_transformers", "rank_bm25"):
+    for mod in ("dotenv", "groq", "mcp", "chromadb", "langchain_chroma", "onnxruntime", "rank_bm25"):
         try:
             importlib.import_module(mod)
             results.append(_line(OK, f"import {mod}"))
