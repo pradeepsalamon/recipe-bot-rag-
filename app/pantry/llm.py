@@ -7,7 +7,8 @@ Production behaviour:
     client, i.e. a new TLS handshake, on every call);
   - 429: wait max(retry-after, 2^n) seconds (capped at 60), up to 8 times;
   - 5xx / connection / timeout: short exponential backoff, LLM_TRANSIENT_RETRIES;
-  - gpt-oss malformed tool call (tool_use_failed): one retry;
+  - gpt-oss malformed tool call (tool_use_failed): up to two retries, each
+    with a note naming the real tools (the identical request fails again);
   - anything else raises LLMError, which the agent turns into a clean stop.
 """
 import random
@@ -87,8 +88,18 @@ def chat(messages, sp, tools=None, model=None, reasoning_effort=None, max_retrie
             waited += wait
             time.sleep(wait)
         except groq.BadRequestError as exc:
-            if "tool_use_failed" in str(exc) and tool_retry < 1:
+            if "tool_use_failed" in str(exc) and tool_retry < 2:
                 tool_retry += 1
+                sp.attrs["tool_use_failed_retries"] = tool_retry
+                # At temperature 0 the identical request fails identically
+                # (2026-10-23: gpt-oss "called" a tool named JSON for its final
+                # answer, twice). Say what went wrong; this turn only.
+                if tools:
+                    names = ", ".join(t["function"]["name"] for t in tools)
+                    messages = messages + [{"role": "system", "content": (
+                        f"Your last reply called a tool that does not exist. The only tools are: {names}. "
+                        "To give the final answer, do not call any tool: write the JSON object "
+                        "as the plain text of your message.")}]
                 continue
             raise LLMError(f"bad request: {str(exc)[:200]}") from exc
         except groq.APIStatusError as exc:
