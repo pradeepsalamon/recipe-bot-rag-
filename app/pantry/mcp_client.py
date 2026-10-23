@@ -42,6 +42,12 @@ class McpToolRegistry:
             # the client-side mirror is the one LangSmith copy
             env["LANGSMITH_TRACING"] = "false"
             env["LANGCHAIN_TRACING_V2"] = "false"
+            current_pythonpath = env.get("PYTHONPATH", "")
+            sys_paths = os.pathsep.join(sys.path)
+            env["PYTHONPATH"] = f"{sys_paths}{os.pathsep}{current_pythonpath}" if current_pythonpath else sys_paths
+            if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+                env.setdefault("HF_HOME", "/tmp/huggingface")
+                env.setdefault("PANTRY_LOG_DIR", "/tmp/logs")
             params = StdioServerParameters(command=_expand(cfg["command"]),
                                            args=[_expand(a) for a in cfg.get("args", [])],
                                            env=env, cwd=_expand(cfg.get("cwd", "{app_dir}")))

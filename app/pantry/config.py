@@ -19,7 +19,21 @@ INDEX_DIR = APP_DIR / ".index"            # Chroma store, rebuilt by `run.py ing
 COLLECTION = "pantry_v1"
 EMBED_MODEL = "all-MiniLM-L6-v2"          # week 3 model, local CPU, no API bill
 
-LOG_DIR = Path(os.getenv("PANTRY_LOG_DIR", str(APP_DIR / "logs")))  # tests point this at a temp dir
+if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+    os.environ.setdefault("HF_HOME", "/tmp/huggingface")
+
+def _default_log_dir():
+    if os.getenv("PANTRY_LOG_DIR"):
+        return Path(os.getenv("PANTRY_LOG_DIR"))
+    if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+        return Path("/tmp/logs")
+    try:
+        (APP_DIR / "logs").mkdir(parents=True, exist_ok=True)
+        return APP_DIR / "logs"
+    except (OSError, PermissionError):
+        return Path("/tmp/logs")
+
+LOG_DIR = _default_log_dir()  # tests point this at a temp dir
 REQUEST_LOG = LOG_DIR / "requests.jsonl"  # one record per question (client side)
 MCP_SPAN_LOG = LOG_DIR / "mcp_spans.jsonl"  # spans written by the MCP server process, same trace_id
 EVAL_LOG = LOG_DIR / "eval_requests.jsonl"  # eval traffic kept apart from "production"
