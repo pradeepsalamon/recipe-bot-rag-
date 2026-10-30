@@ -65,10 +65,29 @@ def normalise_allergies(terms):
 
 def check_declaration(recipe, codes):
     """Exact-match the user's allergen codes against ONE recipe-version's
-    declaration fields. Verdict order: UNSAFE > MAY_CONTAIN > SAFE."""
+    declaration fields. Verdict order: UNSAFE > MAY_CONTAIN > SAFE.
+
+    A user upload (declared=False) has no declaration to match against, so
+    it is UNDECLARED, never SAFE: empty allergen lists there mean "nobody
+    declared anything", not "contains nothing"."""
     codes = set(codes)
     contains = sorted(codes & set(recipe["allergens"]))
     traces = sorted(codes & set(recipe["may_contain"]))
+    if recipe.get("declared") is False:
+        return {
+            "recipe": corpus.key(recipe["recipe_id"], recipe["version"]),
+            "status": recipe["status"],
+            "superseded_by": recipe.get("superseded_by"),
+            "verdict": "UNDECLARED",
+            "contains_user_allergens": [],
+            "may_contain_user_allergens": [],
+            "declared_contains": None,
+            "declared_may_contain": None,
+            "checked_against": sorted(codes),
+            "method": "none: user-uploaded recipe with no allergen declaration",
+            "note": ("This is the user's own uploaded recipe. It has no allergen declaration, so its "
+                     "safety cannot be confirmed: tell the user to read every ingredient and its label."),
+        }
     if contains:
         verdict = "UNSAFE"
     elif traces:
@@ -169,6 +188,8 @@ def check_substituted(recipe, swaps, codes):
     out = check_declaration(as_sub, codes)
     out["method"] = "exact match on the recipe AS SUBSTITUTED (declaration + substitute declarations)"
     out["swaps"] = swaps
+    if out["verdict"] == "UNDECLARED":
+        return out
     if unknown_subs:
         out["verdict"] = "UNKNOWN"
         out["unknown_substitutes"] = unknown_subs

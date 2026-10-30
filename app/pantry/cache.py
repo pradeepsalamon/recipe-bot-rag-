@@ -60,8 +60,12 @@ def skip_reason(question):
     return None
 
 
-@lru_cache(maxsize=1)
 def _recipe_keywords():
+    return _keywords_for(corpus.user_stamp())   # uploads add recipe names
+
+
+@lru_cache(maxsize=2)
+def _keywords_for(_stamp):
     kw = {}
     for r in corpus.all_recipes():
         words = set(re.findall(r"[a-z]+", (r["title"] + " " + r["recipe_id"].replace("_", " ")).lower()))
@@ -100,7 +104,7 @@ def fingerprint(model=None):
     prompt = config.APP_DIR / "prompts" / config.release_settings()["prompt"]
     for path in (prompt, config.RECIPES_FILE, config.SUBSTITUTIONS_FILE, config.FOOD_SAFETY_FILE):
         h.update(path.read_bytes())
-    h.update(f"{model or config.AGENT_MODEL}|{config.RELEASE}".encode())
+    h.update(f"{model or config.AGENT_MODEL}|{config.RELEASE}|{corpus.user_stamp()}".encode())
     return h.hexdigest()[:16]
 
 

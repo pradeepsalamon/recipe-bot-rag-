@@ -3,6 +3,7 @@ export type Citation = {
   title: string | null;
   status: "current" | "superseded" | "invalid";
   current_key?: string | null;
+  source?: "library" | "upload";
 };
 
 export type ToolEvent = { type: "tool"; name: string; args: Record<string, unknown>; summary: string };
@@ -54,4 +55,23 @@ export type Recipe = Citation & {
   ingredients: { item: string; qty: number | null; unit: string; allergens?: string[] }[];
   method: string[];
   notes?: string;
+  declared?: boolean; // false on the user's own uploads: no allergen declaration exists
+  upload?: { file_id: string; filename: string; page: number } | null;
 };
+
+export type UploadedFile = {
+  file_id: string;
+  filename: string;
+  uploaded_at: string;
+  bytes: number;
+  recipes: { key: string; title: string | null }[];
+};
+export type UploadResult = UploadedFile & {
+  duplicate: boolean;
+  skipped: string[];
+  warnings: string[];
+};
+export type UploadEvent =
+  | { type: "progress"; done: number; total: number }
+  | ({ type: "done" } & UploadResult)
+  | ErrorEvent;

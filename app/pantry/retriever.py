@@ -17,6 +17,11 @@ notes per recipe). Allergen declarations are deliberately NOT in the chunk
 text: they are answered by exact match in safety.py, never by similarity.
 Both versions of a reformulated recipe stay in the index: the client's CMS
 still has both, and hiding one would hide the bug, not fix it.
+
+User uploads live in a second collection (config.USER_INDEX_DIR), so the
+committed index never changes. Search covers both. The store is rebuilt when
+data/user_recipes.json changes: uploads are written by the API process, but
+searched in the MCP server process.
 """
 import logging
 import os
@@ -102,12 +107,22 @@ def query_embedder():
     return _embeddings().embed_query
 
 
-def build_index():
-    from langchain_chroma import Chroma
+def _documents(recipes):
     from langchain_core.documents import Document
+    return [Document(page_content=c["text"], metadata=c["meta"]) for r in recipes for c in chunks_for(r)]
 
-    docs = [Document(page_content=c["text"], metadata=c["meta"])
-            for r in corpus.all_recipes() for c in chunks_for(r)]
+
+def _open(directory, collection):
+    from langchain_chroma import Chroma
+    return Chroma(collection_name=collection, embedding_function=_embeddings(),
+                  persist_directory=str(directory))
+
+
+def build_index():
+    """The curated library only; uploads go to the user collection."""
+    from langchain_chroma import Chroma
+
+    docs = _documents(r for r in corpus.all_recipes() if not corpus.is_upload(r))
     if config.INDEX_DIR.exists():
         shutil.rmtree(config.INDEX_DIR)
     Chroma.from_documents(docs, _embeddings(), collection_name=config.COLLECTION,
@@ -117,8 +132,31 @@ def build_index():
     return len(docs)
 
 
+def add_recipes(recipes):
+    """Index uploaded recipes into the user collection. Returns chunk count."""
+    docs = _documents(recipes)
+    if docs:
+        _open(config.USER_INDEX_DIR, config.USER_COLLECTION).add_documents(
+            docs, ids=[d.metadata["chunk_id"] for d in docs])
+    return len(docs)
+
+
+def remove_recipes(keys):
+    if not keys or not user_index_exists():
+        return 0
+    db = _open(config.USER_INDEX_DIR, config.USER_COLLECTION)
+    ids = db.get(where={"recipe_key": {"$in": list(keys)}})["ids"]
+    if ids:
+        db.delete(ids=ids)
+    return len(ids)
+
+
 def index_exists():
     return config.INDEX_DIR.exists() and any(config.INDEX_DIR.iterdir())
+
+
+def user_index_exists():
+    return config.USER_INDEX_DIR.exists() and any(config.USER_INDEX_DIR.iterdir())
 
 
 def _tokens(text):
@@ -126,25 +164,38 @@ def _tokens(text):
 
 
 def _load():
+    stamp = corpus.user_stamp()
     with _lock:   # warm() runs in a background thread at server start
-        if _store:
+        if _store and _store["stamp"] == stamp:
             return _store
-        from langchain_chroma import Chroma
         from rank_bm25 import BM25Okapi
 
+        if _store:
+            # Another process wrote the user collection: drop chromadb's
+            # cached clients so the reopened store reads the new segments.
+            from chromadb.api.client import SharedSystemClient
+            _store.clear()
+            SharedSystemClient.clear_system_cache()
         if (not index_exists() and config.INDEX_DIR != config.BUNDLED_INDEX_DIR
                 and config.BUNDLED_INDEX_DIR.exists()):
             shutil.copytree(config.BUNDLED_INDEX_DIR, config.INDEX_DIR)
         if not index_exists():
             build_index()
-        db = Chroma(collection_name=config.COLLECTION, embedding_function=_embeddings(),
-                    persist_directory=str(config.INDEX_DIR))
-        data = db.get()
-        _store["bm25"] = BM25Okapi([_tokens(t) for t in data["documents"]])
-        _store["ids"] = data["ids"]
-        _store["texts"] = data["documents"]
-        _store["metas"] = data["metadatas"]
-        _store["db"] = db
+        dbs = [_open(config.INDEX_DIR, config.COLLECTION)]
+        if stamp is not None and user_index_exists():
+            dbs.append(_open(config.USER_INDEX_DIR, config.USER_COLLECTION))
+        ids, texts, metas = [], [], []
+        for db in dbs:
+            data = db.get()
+            ids += data["ids"]
+            texts += data["documents"]
+            metas += data["metadatas"]
+        _store["bm25"] = BM25Okapi([_tokens(t) for t in texts])
+        _store["ids"] = ids
+        _store["texts"] = texts
+        _store["metas"] = metas
+        _store["dbs"] = dbs
+        _store["stamp"] = stamp
         return _store
 
 
@@ -164,13 +215,17 @@ def search(query, top_k=None, exclude_allergens=None, include_superseded=True):
     before ranking is cut to top_k.
     include_superseded=False: superseded versions are left out of the results
     (still in the index) and listed under hidden_superseded.
+    User uploads have no declaration, so with any exclude_allergens they are
+    dropped too and listed under excluded_undeclared.
     """
     s = _load()
     top_k = top_k or config.RETRIEVAL["top_k"]
     pool_k = config.RETRIEVAL["pool_k"]
     rrf_k = config.RETRIEVAL["rrf_k"]
 
-    dense = s["db"].similarity_search_with_relevance_scores(query, k=pool_k)
+    # same model and distance in both collections, so the scores compare
+    dense = sorted((hit for db in s["dbs"] for hit in db.similarity_search_with_relevance_scores(query, k=pool_k)),
+                   key=lambda x: -x[1])[:pool_k]
     dense_ids = [d.metadata["chunk_id"] for d, _ in dense]
 
     scores = s["bm25"].get_scores(_tokens(query))
@@ -186,14 +241,20 @@ def search(query, top_k=None, exclude_allergens=None, include_superseded=True):
     meta_by_id = dict(zip(s["ids"], s["metas"]))
     text_by_id = dict(zip(s["ids"], s["texts"]))
 
-    hits, dropped, hidden = {}, [], []
+    hits, dropped, hidden, undeclared = {}, [], [], []
     for cid, score in sorted(fused.items(), key=lambda x: -x[1]):
         m = meta_by_id[cid]
         k = m["recipe_key"]
         r = corpus.get_by_key(k)
+        if r is None:   # chunk of an upload that was deleted after the store loaded
+            continue
         if not include_superseded and r["status"] == "superseded":
             if k not in hidden:
                 hidden.append(k)
+            continue
+        if codes and r.get("declared") is False:
+            if k not in undeclared:
+                undeclared.append(k)
             continue
         if codes and (set(codes) & (set(r["allergens"]) | set(r["may_contain"]))):
             if k not in dropped:
@@ -213,4 +274,6 @@ def search(query, top_k=None, exclude_allergens=None, include_superseded=True):
            "excluded_for": codes, "unknown_allergen_terms": unknown}
     if not include_superseded:
         out["hidden_superseded"] = hidden
+    if undeclared:
+        out["excluded_undeclared"] = undeclared
     return out

@@ -5,11 +5,20 @@ A recipe is addressed by its key: "<recipe_id>@<version>", e.g.
 "shortbread@reformulated-2025". That key is the citation format, the chunk
 prefix in the index, and the card filename. A citation that does not name the
 version does not count (brief, requirement 1).
+
+Recipes the user uploaded (data/user_recipes.json, written by uploads.py) are
+merged in as "u_<slug>@upload". They carry declared=False: there is no
+allergen declaration behind them, and safety.py treats them that way. The
+merge is keyed on that file's mtime, so the MCP server process picks up an
+upload made by the API process without a restart.
 """
 import json
-from functools import lru_cache
+import threading
 
 from . import config
+
+_cache = {}
+_cache_lock = threading.Lock()
 
 
 def key(recipe_id, version):
@@ -21,12 +30,39 @@ def split_key(k):
     return recipe_id, version
 
 
-@lru_cache(maxsize=1)
+def user_stamp():
+    """mtime of the uploads file, or None. Changes on every upload/delete."""
+    if not config.UPLOADS_ENABLED:
+        return None
+    try:
+        return config.USER_RECIPES_FILE.stat().st_mtime_ns
+    except FileNotFoundError:
+        return None
+
+
+def read_user_file():
+    if user_stamp() is None:
+        return {"files": [], "recipes": []}
+    with open(config.USER_RECIPES_FILE, encoding="utf-8") as f:
+        return json.load(f)
+
+
 def _load():
-    with open(config.RECIPES_FILE, encoding="utf-8") as f:
-        data = json.load(f)
-    by_key = {key(r["recipe_id"], r["version"]): r for r in data["recipes"]}
-    return data["allergen_codes"], by_key
+    stamp = (str(config.RECIPES_FILE), str(config.USER_RECIPES_FILE), user_stamp())
+    with _cache_lock:
+        if _cache.get("stamp") == stamp:
+            return _cache["value"]
+        with open(config.RECIPES_FILE, encoding="utf-8") as f:
+            data = json.load(f)
+        by_key = {key(r["recipe_id"], r["version"]): r for r in data["recipes"]}
+        for r in read_user_file()["recipes"]:
+            by_key.setdefault(key(r["recipe_id"], r["version"]), r)   # never shadow the library
+        _cache.update(stamp=stamp, value=(data["allergen_codes"], by_key))
+        return _cache["value"]
+
+
+def is_upload(r):
+    return (r.get("source") or {}).get("kind") == "upload"
 
 
 def allergen_codes():
@@ -57,6 +93,8 @@ def current_version(recipe_id):
 
 
 def card_path(k):
+    if k.startswith("u_"):   # uploads stay out of the committed cards dir
+        return config.UPLOADS_DIR / "cards" / f"{k}.md"
     return config.CARDS_DIR / f"{k}.md"
 
 
@@ -68,6 +106,9 @@ def render_card(r):
         lines.append(f"\n> SUPERSEDED by `{r['superseded_by']}`. Do not cook from this version.")
     if r.get("reformulation_note"):
         lines.append(f"\n> {r['reformulation_note']}")
+    if r.get("declared") is False:
+        lines.append(f"\n> Your upload ({r['source']['filename']}). Allergens NOT declared: "
+                     f"check every ingredient label yourself.")
     lines += [
         "",
         f"**Contains:** {', '.join(r['allergens']) or 'none declared'}  ",
@@ -89,9 +130,10 @@ def render_card(r):
     return "\n".join(lines)
 
 
-def write_cards():
-    config.CARDS_DIR.mkdir(parents=True, exist_ok=True)
-    for r in all_recipes():
-        k = key(r["recipe_id"], r["version"])
-        card_path(k).write_text(render_card(r), encoding="utf-8")
-    return len(all_recipes())
+def write_cards(recipes=None):
+    recipes = all_recipes() if recipes is None else recipes
+    for r in recipes:
+        path = card_path(key(r["recipe_id"], r["version"]))
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(render_card(r), encoding="utf-8")
+    return len(recipes)

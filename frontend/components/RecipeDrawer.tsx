@@ -76,14 +76,21 @@ export default function RecipeDrawer({
                   )}
                 </div>
               )}
+              {r.declared === false && (
+                <div className="rounded-lg border border-warn/40 bg-warn-soft px-3 py-2">
+                  <strong>Your upload</strong>
+                  {r.upload && ` from ${r.upload.filename}${r.upload.page > 1 ? `, page ${r.upload.page}` : ""}`}.
+                  Allergens are <strong>not declared</strong>: check every ingredient and its label yourself.
+                </div>
+              )}
               {r.reformulation_note && (
                 <div className="rounded-lg border border-warn/40 bg-warn-soft px-3 py-2">{r.reformulation_note}</div>
               )}
               {r.description && <p className="text-muted">{r.description}</p>}
 
               <div className="grid grid-cols-2 gap-2">
-                <Fact label="Contains" tone="danger" items={r.allergens} empty="none declared" />
-                <Fact label="May contain" tone="warn" items={r.may_contain} empty="none declared" />
+                <Fact label="Contains" tone="danger" items={r.allergens} empty={r.declared === false ? "not declared" : "none declared"} />
+                <Fact label="May contain" tone="warn" items={r.may_contain} empty={r.declared === false ? "not declared" : "none declared"} />
                 <Fact label="Yield" text={`${r.yield.amount} ${r.yield.unit}`} />
                 <Fact
                   label="Time"

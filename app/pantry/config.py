@@ -27,6 +27,22 @@ EMBED_MODEL = "all-MiniLM-L6-v2"          # week 3 model, local CPU, no API bill
 # serverless keeps it in /tmp, locally it stays in ~/.cache/chroma
 ONNX_MODEL_DIR = Path("/tmp/chroma/onnx_models") / EMBED_MODEL
 
+# User uploads (pantry/uploads.py). Local dev only: on serverless /tmp is
+# per-instance and wiped on cold start, so the upload routes answer 501 there.
+# Everything here is gitignored, so the curated recipes.json and the committed
+# .index never change when someone uploads a cookbook.
+USER_RECIPES_FILE = DATA_DIR / "user_recipes.json"
+UPLOADS_DIR = DATA_DIR / "uploads"            # original files, <file_id>.<ext>
+USER_INDEX_DIR = APP_DIR / ".index-user"      # separate Chroma store for uploaded chunks
+USER_COLLECTION = "pantry_user_v1"
+UPLOAD_LIMITS = {
+    "max_bytes": 20 * 1024 * 1024,
+    "extensions": (".pdf", ".docx", ".txt", ".md"),
+    "window_chars": 8000,     # ~2k tokens per extraction call: inside Groq's 8k tokens/min
+    "overlap_chars": 1000,    # a recipe cut by a window edge is seen whole by the next one
+    "max_windows": 40,
+}
+
 def _default_log_dir():
     if os.getenv("PANTRY_LOG_DIR"):
         return Path(os.getenv("PANTRY_LOG_DIR"))
@@ -108,6 +124,10 @@ def feature(name):
 def _flag(name, default="0"):
     return os.getenv(name, default).strip().lower() in ("1", "true", "yes", "on")
 
+
+# PANTRY_USER_RECIPES=0 leaves uploads out of the corpus (evals do this, so
+# the 34 cases run against the curated library only).
+UPLOADS_ENABLED = not SERVERLESS and _flag("PANTRY_USER_RECIPES", "1")
 
 # Input limits: a question longer than this is rejected before any model call.
 MAX_QUESTION_CHARS = 1000

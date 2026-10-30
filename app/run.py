@@ -9,6 +9,8 @@ Pantry-to-Plate: the single entry point.
     python run.py serve-mcp [--http 8799]    # the MCP server on its own, for any client
     python run.py serve-api [--port 8000]    # HTTP API for the web chat (frontend/)
     python run.py ingest                     # rebuild cards + index (ask/eval do it if missing)
+    python run.py upload my_recipes.pdf      # add your own recipes (PDF/DOCX/TXT/MD), local only
+    python run.py uploads [--delete ID]      # list / remove uploaded files
     python run.py check-data                 # declaration vs ingredient-list mismatches
     python run.py test                       # pytest suite, no API calls
     python run.py doctor [--online]          # is this machine set up correctly?
@@ -153,6 +155,55 @@ def cmd_trace(trace_id, out=None):
     return 0
 
 
+def cmd_upload(path):
+    from pantry import config, uploads
+    if not config.UPLOADS_ENABLED:
+        print("Uploads are off (serverless, or PANTRY_USER_RECIPES=0).")
+        return 1
+    path = Path(path)
+    if not path.is_file():
+        print(f"No such file: {path}")
+        return 1
+    try:
+        res = uploads.ingest_file(path, path.name,
+                                  on_progress=lambda d, t: print(f"  reading section {d}/{t}", flush=True))
+    except uploads.UploadError as exc:
+        print(f"  {exc}")
+        return 1
+    if res["duplicate"]:
+        print(f"Already uploaded as {res['file_id']}.")
+    for w in res["warnings"]:
+        print(f"  ! {w}")
+    for s in res["skipped"]:
+        print(f"  skipped: {s}")
+    print(f"{len(res['recipes'])} recipe(s) from {res['filename']} (file id {res['file_id']}"
+          + (f", ${res['cost_usd']:.6f}" if "cost_usd" in res else "") + "):")
+    for r in res["recipes"]:
+        print(f"  [{r['key']}] {r['title']}")
+    print("Allergens are NOT declared for uploaded recipes: the assistant will say so.")
+    return 0
+
+
+def cmd_uploads(delete=None):
+    from pantry import uploads
+    if delete:
+        try:
+            res = uploads.delete_upload(delete)
+        except KeyError:
+            print(f"No upload {delete}")
+            return 1
+        print(f"removed {len(res['removed'])} recipe(s): {', '.join(res['removed'])}")
+        return 0
+    files = uploads.list_uploads()
+    if not files:
+        print("No uploads yet: python run.py upload <file>")
+    for f in files:
+        print(f"{f['file_id']}  {f['filename']}  ({f['uploaded_at']}, {len(f['recipes'])} recipes)")
+        for r in f["recipes"]:
+            print(f"    [{r['key']}] {r['title']}")
+    return 0
+
+
 def _run_tests(pytest_args):
     try:
         import pytest
@@ -172,6 +223,10 @@ def main():
     a.add_argument("question", nargs="+")
     sub.add_parser("chat")
     sub.add_parser("ingest")
+    up = sub.add_parser("upload", help="extract recipes from a PDF/DOCX/TXT/MD file into your library")
+    up.add_argument("path")
+    ul = sub.add_parser("uploads", help="list uploaded files")
+    ul.add_argument("--delete", default=None, metavar="FILE_ID")
     s = sub.add_parser("serve-mcp")
     s.add_argument("--http", type=int, default=None, help="serve streamable HTTP on this port")
     sa = sub.add_parser("serve-api")
@@ -209,6 +264,9 @@ def main():
     if args.cmd is None:
         p.print_help()
         return 0
+    if args.cmd == "eval":
+        # the suite measures the curated library, not whatever was uploaded locally
+        os.environ["PANTRY_USER_RECIPES"] = "0"
     if args.cmd == "serve-mcp":
         # stdout belongs to the MCP protocol here: print nothing.
         from pantry.mcp_server import serve
@@ -220,6 +278,8 @@ def main():
         from pantry import corpus, retriever
         print(f"cards: {corpus.write_cards()}  chunks: {retriever.build_index()}")
         return 0
+    if args.cmd == "uploads":
+        return cmd_uploads(args.delete)
     if args.cmd == "check-data":
         from pantry import safety
         rows = safety.integrity_report()
@@ -270,6 +330,8 @@ def main():
         print("GROQ_API_KEY is not set. Put it in app/.env (see .env.example).")
         return 1
     _ensure_index()
+    if args.cmd == "upload":
+        return cmd_upload(args.path)
     if args.cmd == "ask":
         asyncio.run(_ask([" ".join(args.question)]))
     elif args.cmd == "chat":

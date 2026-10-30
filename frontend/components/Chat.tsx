@@ -6,6 +6,7 @@ import type { Message, StreamEvent } from "@/lib/types";
 import AssistantMessage from "./AssistantMessage";
 import Composer from "./Composer";
 import RecipeDrawer from "./RecipeDrawer";
+import UploadPanel, { type UploadHandle } from "./UploadPanel";
 
 const SUGGESTIONS = [
   "What can I make with rice and lemons? My kid is allergic to nuts.",
@@ -14,7 +15,14 @@ const SUGGESTIONS = [
   "What temperature should roast chicken reach inside?",
 ];
 
-type Health = { status: string; release?: string; model?: string; tools?: string[]; detail?: string };
+type Health = {
+  status: string;
+  release?: string;
+  model?: string;
+  tools?: string[];
+  uploads?: boolean;
+  detail?: string;
+};
 
 function newId() {
   return Math.random().toString(36).slice(2, 10);
@@ -25,6 +33,8 @@ export default function Chat() {
   const [busy, setBusy] = useState(false);
   const [openRecipe, setOpenRecipe] = useState<string | null>(null);
   const [health, setHealth] = useState<Health | null>(null);
+  const [uploadsOpen, setUploadsOpen] = useState(false);
+  const uploadRef = useRef<UploadHandle>(null);
   const sessionId = useRef<string>("");
   const abortRef = useRef<AbortController | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -99,6 +109,14 @@ export default function Chat() {
             </p>
           </div>
           <StatusPill health={health} />
+          {health?.uploads && (
+            <button
+              onClick={() => setUploadsOpen(true)}
+              className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted hover:bg-surface-muted hover:text-foreground"
+            >
+              My recipes
+            </button>
+          )}
           {messages.length > 0 && (
             <button
               onClick={reset}
@@ -139,7 +157,26 @@ export default function Chat() {
         </div>
       </main>
 
-      <Composer busy={busy} onSend={send} onStop={() => abortRef.current?.abort()} />
+      <Composer
+        busy={busy}
+        onSend={send}
+        onStop={() => abortRef.current?.abort()}
+        onAttach={
+          health?.uploads
+            ? (file) => {
+                setUploadsOpen(true);
+                uploadRef.current?.upload(file);
+              }
+            : undefined
+        }
+      />
+
+      <UploadPanel
+        ref={uploadRef}
+        open={uploadsOpen}
+        onClose={() => setUploadsOpen(false)}
+        onOpenRecipe={setOpenRecipe}
+      />
 
       <RecipeDrawer recipeKey={openRecipe} onClose={() => setOpenRecipe(null)} onOpen={setOpenRecipe} />
     </div>

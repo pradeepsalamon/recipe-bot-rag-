@@ -25,9 +25,12 @@ def _is_staple(item):
 def match(have, exclude_allergens=None, max_minutes=None, top_k=5, include_superseded=True):
     have_words = set().union(*[_words(h) for h in have]) if have else set()
     codes, unknown = safety.normalise_allergies(exclude_allergens or [])
-    rows = []
+    rows, undeclared = [], []
     for r in corpus.all_recipes():
         if not include_superseded and r["status"] == "superseded":
+            continue
+        if codes and r.get("declared") is False:   # a user upload: nothing to exclude by
+            undeclared.append(corpus.key(r["recipe_id"], r["version"]))
             continue
         if codes and set(codes) & (set(r["allergens"]) | set(r["may_contain"])):
             continue
@@ -44,5 +47,8 @@ def match(have, exclude_allergens=None, max_minutes=None, top_k=5, include_super
                      "coverage": round(len(got) / max(1, len(needed)), 2),
                      "have": got, "missing": missing, "total_minutes": total})
     rows.sort(key=lambda x: (-x["coverage"], x["total_minutes"]))
-    return {"have": have, "excluded_for": codes, "unknown_allergen_terms": unknown,
-            "max_minutes": max_minutes, "results": rows[:top_k]}
+    out = {"have": have, "excluded_for": codes, "unknown_allergen_terms": unknown,
+           "max_minutes": max_minutes, "results": rows[:top_k]}
+    if undeclared:
+        out["excluded_undeclared"] = undeclared
+    return out

@@ -3,7 +3,10 @@ HTTP API for the web chat (frontend/). Same path as the CLI: service.answer.
 
     POST /api/chat           {question, session_id?} -> NDJSON stream of events
     GET  /api/recipes/{key}  one recipe-version, as stored in data/recipes.json
-    GET  /api/health         tools discovered, release, cache flag
+    GET  /api/health         tools discovered, release, cache flag, uploads flag
+    POST /api/uploads        multipart file -> NDJSON progress, then the recipes found
+    GET  /api/uploads        uploaded files and their recipes
+    DELETE /api/uploads/{id} remove one file and its recipes
 
 One MCP registry is opened at startup and shared by every request, so the
 MCP server process is not respawned per question. Events on the stream:
@@ -15,13 +18,15 @@ MCP server process is not respawned per question. Events on the stream:
 """
 import asyncio
 import json
+import os
+import tempfile
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from . import config, corpus, service
+from . import config, corpus, service, uploads
 from .mcp_client import McpToolRegistry
 
 _state = {}
@@ -57,7 +62,8 @@ def _citation(key):
         return {"key": key, "title": None, "status": "invalid"}
     current = corpus.current_version(r["recipe_id"])
     return {"key": key, "title": r["title"], "status": r["status"],
-            "current_key": current and corpus.key(current["recipe_id"], current["version"])}
+            "current_key": current and corpus.key(current["recipe_id"], current["version"]),
+            "source": "upload" if corpus.is_upload(r) else "library"}
 
 
 def _final_event(res):
@@ -123,7 +129,9 @@ def recipe(key: str):
     r = corpus.get_by_key(key)
     if r is None:
         raise HTTPException(status_code=404, detail=f"No recipe {key}")
-    return {**r, **_citation(key)}
+    # _citation's "source" ("upload"/"library") replaces the stored source; the
+    # upload details (filename, page) stay available as "upload"
+    return {**r, **_citation(key), "upload": r.get("source") if corpus.is_upload(r) else None}
 
 
 @app.get("/api/health")
@@ -133,7 +141,71 @@ def health():
         return {"status": "error", "detail": _state["startup_error"], "release": config.RELEASE}
     return {"status": "ok" if reg else "starting", "release": config.RELEASE,
             "model": config.AGENT_MODEL, "cache": config.CACHE["enabled"],
-            "tools": sorted(reg.tools) if reg else []}
+            "uploads": config.UPLOADS_ENABLED, "tools": sorted(reg.tools) if reg else []}
+
+
+def _uploads_enabled():
+    if not config.UPLOADS_ENABLED:
+        raise HTTPException(status_code=501, detail="Uploads are only available when running locally.")
+
+
+@app.post("/api/uploads")
+async def upload(file: UploadFile):
+    """Streams {"type":"progress","done","total"} per extraction call, then
+    {"type":"done", file_id, filename, recipes, skipped, warnings, duplicate}
+    or {"type":"error","message"}. Bad type/size fails fast with 400."""
+    _uploads_enabled()
+    data = await file.read(config.UPLOAD_LIMITS["max_bytes"] + 1)
+    try:
+        ext = uploads.check_file(file.filename, len(data))
+    except uploads.UploadError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    fd, tmp = tempfile.mkstemp(suffix=ext)
+    with os.fdopen(fd, "wb") as f:
+        f.write(data)
+
+    loop = asyncio.get_running_loop()
+    queue = asyncio.Queue()
+
+    def on_progress(done, total):
+        loop.call_soon_threadsafe(queue.put_nowait, {"type": "progress", "done": done, "total": total})
+
+    async def work():
+        try:
+            res = await asyncio.to_thread(uploads.ingest_file, tmp, file.filename, on_progress)
+            queue.put_nowait({"type": "done", **res})
+        except uploads.UploadError as exc:
+            queue.put_nowait({"type": "error", "message": str(exc)})
+        except Exception as exc:
+            queue.put_nowait({"type": "error", "message": f"{type(exc).__name__}: {exc}"[:300]})
+        finally:
+            os.unlink(tmp)
+        queue.put_nowait(None)
+
+    async def stream():
+        task = asyncio.create_task(work())
+        try:
+            while (event := await queue.get()) is not None:
+                yield _line(event)
+        finally:
+            await task
+
+    return StreamingResponse(stream(), media_type="application/x-ndjson")
+
+
+@app.get("/api/uploads")
+def list_uploads():
+    _uploads_enabled()
+    return {"files": uploads.list_uploads()}
+
+
+@app.delete("/api/uploads/{file_id}")
+def delete_upload(file_id: str):
+    _uploads_enabled()
+    try:
+        return uploads.delete_upload(file_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"No upload {file_id}")
 
 
 def serve(port=8000):

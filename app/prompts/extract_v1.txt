@@ -1,0 +1,34 @@
+You turn a piece of a user's recipe document (a cookbook page, a recipe doc, notes) into structured recipes.
+
+The text may contain zero, one or several recipes, and may start or end in the middle of one. Extract every recipe that is COMPLETE in this text: it has a title, an ingredient list and method steps. Skip a recipe that is cut off (it will be read again with the next piece of text). Skip anything that is not a recipe (introductions, indexes, stories, ads).
+
+Copy, do not invent:
+- Quantities: copy the number exactly; fractions as decimals (1/2 -> 0.5). If no amount is given ("salt to taste", "a pinch"), use "qty": null and put the wording in "unit" (e.g. "to taste").
+- Units as written, short form: g, kg, ml, L, tsp, tbsp, cup, piece, clove, pinch, etc.
+- Times in minutes and the oven temperature in °C; convert °F to °C (round to the nearest 5). null if not stated.
+- yield: the servings / pieces the recipe makes. null amount if not stated.
+- Never add allergen information. Never add ingredients or steps that are not in the text.
+
+safety_category: one of "poultry", "ground_meat", "whole_cuts", "fish", "egg_dishes" when that is the main ingredient, otherwise null.
+
+Reply with ONLY this JSON object and nothing else:
+{
+  "recipes": [
+    {
+      "title": "string",
+      "description": "one sentence, from the text if it has one",
+      "cuisine": "string or empty",
+      "dietary_tags": ["vegetarian", "..."],
+      "yield": {"amount": 4, "unit": "servings"},
+      "prep_minutes": 10,
+      "cook_minutes": 20,
+      "rest_minutes": null,
+      "oven_c": 180,
+      "ingredients": [{"item": "plain flour", "qty": 200, "unit": "g"}],
+      "method": ["step one", "step two"],
+      "notes": "tips or variations from the text, or empty",
+      "safety_category": null
+    }
+  ]
+}
+If there is no complete recipe, reply {"recipes": []}.

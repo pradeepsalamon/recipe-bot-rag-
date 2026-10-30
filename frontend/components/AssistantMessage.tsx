@@ -191,6 +191,9 @@ function SourceCard({ c, onOpen }: { c: Citation; onOpen: (key: string) => void 
     >
       <div className="truncate font-medium">{c.title ?? "Not in the library"}</div>
       <div className="truncate font-mono text-xs text-muted">{c.key}</div>
+      {c.source === "upload" && (
+        <div className="mt-0.5 text-xs font-medium text-warn">Your upload · allergens not declared</div>
+      )}
       {superseded && (
         <div className="mt-0.5 text-xs font-medium text-danger">
           Superseded{c.current_key ? ` — current is ${c.current_key}` : ""}

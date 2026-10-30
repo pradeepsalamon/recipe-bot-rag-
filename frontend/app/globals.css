@@ -60,6 +60,14 @@ body {
   color: var(--foreground);
 }
 
+/* Tailwind v4's preflight resets buttons to cursor: default */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 @keyframes blink {
   0%, 80%, 100% { opacity: 0.25; }
   40% { opacity: 1; }
